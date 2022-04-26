@@ -1,2 +1,3 @@
-# CIS 232
+# Code 232
 ## Assignment 6 - Team 2
+
