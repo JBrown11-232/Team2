@@ -1,4 +1,7 @@
 # CIS 232
 ## Assignment 6 - Team 2
-Changed by Connor Levinson
 
+Hello everyone! Using Git is fun!
+Project ideas are fun to think of.
+coding with java is fun!
+Changed by Connor Levinson
