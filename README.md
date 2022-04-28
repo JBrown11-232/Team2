@@ -14,4 +14,4 @@ A build your own pizza application which will:
 * Josh - PizzaDBManager
 * Ian - 
 * Eric - 
-* Connor - 
+* Connor - Display Costs
