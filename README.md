@@ -12,6 +12,6 @@ A build your own pizza application which will:
 
 ### Roles:
 * Josh - PizzaDBManager
-* Ian - Taking the customers order
-* Eric - 
-* Connor - 
+* Ian - Taking the Customers Order
+* Eric - changing the option prices
+* Connor - Display Costs
