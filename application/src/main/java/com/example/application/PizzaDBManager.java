@@ -1,24 +1,32 @@
+//Written by Josh Brown
+
 package com.example.application;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 //TODO add input filters for cntrl chars and ' (prepared statments)?
-//TODO test create DB methods, adding valid/invalid data, joining to get names
-//TODO determine good ID bounds
+//TODO make sure Option type and Pizza size are cut to one char
+//TODO validate pizzas having exactly 1 crust and sauce before updates
+//TODO check all void methods (and non voids)
 
 public class PizzaDBManager{
 	final static private String DB_URL = "jdbc:derby:PizzaDB;create=true";
 	final static private int ID_LOWER_BOUND = 1;
 	final static private int ID_UPPER_BOUND = 100000000;
 	
+	static private int worldNum = 0;
+	
+	public static int getWorldNum(){
+		return worldNum;
+	}
+	
 	public static void createDB(){
 		try{
 			Connection conn = createConn();
 			System.out.println("Dropping...");
+			worldNum = -1*Math.abs(worldNum+1);
 			dropTables(conn);
 			System.out.println("Creating Customer");
 			createCustomerTable(conn);
@@ -30,6 +38,10 @@ public class PizzaDBManager{
 			createUsedOptionTable(conn);
 			System.out.println("Done");
 			closeConn(conn);
+			worldNum = Math.abs(worldNum);
+			for(int PID : getPizzaIDs()){
+				recalculatePizzaPrice(PID);
+			}
 		}
 		catch(SQLException ex){
 			System.out.println("ERROR: "+ex.getMessage());
@@ -283,47 +295,53 @@ public class PizzaDBManager{
 		return val;
 	}
 	
-	public static int getPizzaCustomer(int PID) throws SQLException{
+	public static Customer getPizzaCustomer(int PID) throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
-		ResultSet results = stmt.executeQuery("SELECT CustomerID FROM Pizza WHERE PizzaID="+PID);
-		int val = results.next() ? results.getInt(1) : -1;
+		ResultSet results = stmt.executeQuery("SELECT Customer.CustomerID, Name, Address, PhoneNumber "+
+				"FROM Pizza LEFT JOIN Customer ON Pizza.CustomerID=Customer.CustomerID WHERE PizzaID="+PID);
+		Customer val = results.next() ? new Customer(results.getInt(1), results.getString(2),
+				results.getString(3), results.getString(4), worldNum) : null;
 		
 		stmt.close();
 		closeConn(conn);
 		return val;
 	}
 	
-	public static ArrayList<String> getCustomerPizzas(int CID) throws SQLException{
+	public static ArrayList<Pizza> getCustomerPizzas(int CID) throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		Statement stmt2 = conn.createStatement();
 		
-		ResultSet results = stmt.executeQuery("SELECT * FROM Pizza WHERE CustomerID="+CID);
-		ArrayList<String> listData = new ArrayList<>();
+		ResultSet results = stmt.executeQuery("SELECT * FROM Pizza LEFT JOIN Customer ON "+
+				"Pizza.CustomerID=Customer.CustomerID WHERE Customer.CustomerID="+CID);
+		ArrayList<Pizza> listData = new ArrayList<>();
 		while(results.next()){
 			int PID = results.getInt("PizzaID");
-			ResultSet pizzaOptions = stmt2.executeQuery("SELECT AvailableOption.Name, AvailableOption.Type FROM "+
+			Customer customer = new Customer(results.getInt("CustomerID"),
+					results.getString("Name"), results.getString("Address"),
+					results.getString("PhoneNumber"), worldNum);
+			ResultSet pizzaOptions = stmt2.executeQuery("SELECT UsedOption.OptionID, Name, Type, Price FROM "+
 					"UsedOption LEFT JOIN AvailableOption ON UsedOption.OptionID=AvailableOption.OptionID "+
 					"WHERE UsedOption.PizzaID="+PID);
-			String crust = "", sauce = "";
-			StringBuilder toppings = new StringBuilder(25);
+			Option crust = null, sauce = null;
+			ArrayList<Option> toppings = new ArrayList<>();
 			while(pizzaOptions.next()){
-				switch(pizzaOptions.getString(2)){
-					case "C" -> crust = pizzaOptions.getString(1);
-					case "S" -> sauce = pizzaOptions.getString(1);
-					case "T" -> {
-						if(!toppings.isEmpty()){
-							toppings.append(", ");
-						}
-						toppings.append(pizzaOptions.getString(1));
-					}
+				switch(pizzaOptions.getString(3)){
+					case "C" -> crust = new Option(pizzaOptions.getInt(1),
+							pizzaOptions.getString(2), pizzaOptions.getString(3),
+							pizzaOptions.getDouble(4), worldNum);
+					case "S" -> sauce = new Option(pizzaOptions.getInt(1),
+							pizzaOptions.getString(2), pizzaOptions.getString(3),
+							pizzaOptions.getDouble(4), worldNum);
+					case "T" ->	toppings.add(new Option(pizzaOptions.getInt(1),
+							pizzaOptions.getString(2), pizzaOptions.getString(3),
+							pizzaOptions.getDouble(4), worldNum));
 				}
 			}
-			listData.add("PID: %d; Size: %s; Crust: %s; Sauce: %s; Toppings: %s; Price: $%.2f".formatted(
-					PID, results.getString("Size"), crust, sauce,
-					toppings.toString(), results.getDouble("Price")));
+			listData.add(new Pizza(PID, customer, results.getString("Size"),
+					crust, sauce, toppings, results.getDouble("Price"), worldNum));
 		}
 		
 		stmt2.close();
@@ -332,56 +350,55 @@ public class PizzaDBManager{
 		return listData;
 	}
 	
-	public static String getPizzaSummary(int PID) throws SQLException{
+	public static Pizza getPizza(int PID) throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		Statement stmt2 = conn.createStatement();
 		
-		String val;
-		ResultSet results = stmt.executeQuery("SELECT * FROM Pizza WHERE PizzaID="+PID);
+		ResultSet results = stmt.executeQuery("SELECT * FROM Pizza LEFT JOIN Customer ON "+
+				"Pizza.CustomerID=Customer.CustomerID WHERE PizzaID="+PID);
 		if(!results.next()){
-			return "";
+			return null;
 		}
-		ResultSet pizzaOptions = stmt2.executeQuery("SELECT AvailableOption.Name, AvailableOption.Type FROM "+
+		Customer customer = new Customer(results.getInt("CustomerID"),
+				results.getString("Name"), results.getString("Address"),
+				results.getString("PhoneNumber"), worldNum);
+		ResultSet pizzaOptions = stmt2.executeQuery("SELECT UsedOption.OptionID, Name, Type, Price FROM "+
 				"UsedOption LEFT JOIN AvailableOption ON UsedOption.OptionID=AvailableOption.OptionID "+
 				"WHERE UsedOption.PizzaID="+PID);
-		String crust = "", sauce = "";
-		StringBuilder toppings = new StringBuilder(25);
+		Option crust = null, sauce = null;
+		ArrayList<Option> toppings = new ArrayList<>();
 		while(pizzaOptions.next()){
-			switch(pizzaOptions.getString(2)){
-				case "C" -> crust = pizzaOptions.getString(1);
-				case "S" -> sauce = pizzaOptions.getString(1);
-				case "T" -> {
-					if(!toppings.isEmpty()){
-						toppings.append(", ");
-					}
-					toppings.append(pizzaOptions.getString(1));
-				}
+			switch(pizzaOptions.getString(3)){
+				case "C" -> crust = new Option(pizzaOptions.getInt(1),
+						pizzaOptions.getString(2), pizzaOptions.getString(3),
+						pizzaOptions.getDouble(4), worldNum);
+				case "S" -> sauce = new Option(pizzaOptions.getInt(1),
+						pizzaOptions.getString(2), pizzaOptions.getString(3),
+						pizzaOptions.getDouble(4), worldNum);
+				case "T" ->	toppings.add(new Option(pizzaOptions.getInt(1),
+						pizzaOptions.getString(2), pizzaOptions.getString(3),
+						pizzaOptions.getDouble(4), worldNum));
 			}
 		}
-		val = "CID: %d; Size: %s; Crust: %s; Sauce: %s; Toppings: %s; Price: $%.2f".formatted(
-				results.getInt("CustomerID"), results.getString("Size"),
-				crust, sauce, toppings.toString(), results.getDouble("Price"));
+		Pizza pizza = new Pizza(PID, customer, results.getString("Size"),
+				crust, sauce, toppings, results.getDouble("Price"), worldNum);
 		
 		stmt2.close();
 		stmt.close();
 		closeConn(conn);
-		return val;
+		return pizza;
 	}
 	
-	public static ArrayList<String> getCustomerSummaries() throws SQLException{
+	public static ArrayList<Customer> getCustomers() throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
-		ResultSet results = stmt.executeQuery("SELECT Customer.CustomerID, Name, Address, "+
-				"PhoneNumber, COALESCE(SUM(Pizza.Price),0.0) FROM Customer LEFT JOIN Pizza "+
-				"ON Customer.CustomerID=Pizza.CustomerID GROUP BY Customer.CustomerID, Name, Address, PhoneNumber");
-		ArrayList<String> listData = new ArrayList<>();
+		ResultSet results = stmt.executeQuery("SELECT CustomerID, Name, Address, PhoneNumber FROM Customer");
+		ArrayList<Customer> listData = new ArrayList<>();
 		while(results.next()){
-			listData.add("CID: %d; Name: %s; Address: %s; Phone Number: %s; Total Owed: $%.2f".formatted(
-					results.getInt(1), results.getString(2),
-					results.getString(3), results.getString(4),
-					results.getDouble(5)));
+			listData.add(new Customer(results.getInt(1), results.getString(2),
+					results.getString(3), results.getString(4), worldNum));
 		}
 		
 		stmt.close();
@@ -389,34 +406,66 @@ public class PizzaDBManager{
 		return listData;
 	}
 	
-	public static String getCustomerSummary(int CID) throws SQLException{
+	public static Customer getCustomer(int CID) throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
-		ResultSet results = stmt.executeQuery("SELECT Name, Address, PhoneNumber, COALESCE(SUM(Price),0.0) "+
-				"FROM Customer LEFT JOIN Pizza ON Customer.CustomerID=Pizza.CustomerID "+
-				"WHERE Customer.CustomerID="+CID+" GROUP BY Customer.CustomerID, Name, Address, PhoneNumber");
+		ResultSet results = stmt.executeQuery("SELECT Name, Address, PhoneNumber "+
+				"FROM Customer WHERE CustomerID="+CID);
 		if(!results.next()){
-			return "";
+			return null;
 		}
-		String val = "Name: %s; Address: %s; Phone Number: %s; Total Owed: $%.2f".formatted(
-				results.getString(1), results.getString(2),
-				results.getString(3), results.getDouble(4));
+		Customer customer = new Customer(CID, results.getString(1), results.getString(2),
+				results.getString(3), worldNum);
+		
+		stmt.close();
+		closeConn(conn);
+		return customer;
+	}
+	
+	public static Option getAvailableOption(int OID) throws SQLException{
+		Connection conn = createConn();
+		Statement stmt = conn.createStatement();
+		
+		ResultSet results = stmt.executeQuery("SELECT OptionID, Name, Type, Price "+
+				"FROM AvailableOption WHERE OptionID="+OID);
+		if(!results.next()){
+			return null;
+		}
+		Option option = new Option(results.getInt(1), results.getString(2),
+				results.getString(3), results.getDouble(4), worldNum);
+		
+		stmt.close();
+		closeConn(conn);
+		return option;
+	}
+	
+	public static double getTotalOwed(int CID) throws SQLException{
+		Connection conn = createConn();
+		Statement stmt = conn.createStatement();
+		
+		ResultSet results = stmt.executeQuery("SELECT COALESCE(SUM(Pizza.Price),0.0) FROM Customer LEFT JOIN Pizza "+
+				"ON Customer.CustomerID=Pizza.CustomerID WHERE Customer.CustomerID="+CID+" GROUP BY Customer.CustomerID");
+		if(!results.next()){
+			return -1.0;
+		}
+		double val = results.getDouble(1);
 		
 		stmt.close();
 		closeConn(conn);
 		return val;
+		
 	}
 	
-	public static ArrayList<String> getAvailableOptions() throws SQLException{
+	public static ArrayList<Option> getAvailableOptions() throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
-		ResultSet results = stmt.executeQuery("SELECT OptionID, Name, Price FROM AvailableOption");
-		ArrayList<String> listData = new ArrayList<>();
+		ResultSet results = stmt.executeQuery("SELECT OptionID, Name, Type, Price FROM AvailableOption");
+		ArrayList<Option> listData = new ArrayList<>();
 		while(results.next()){
-			listData.add("OID: %d; Name: %s; Price: $%.2f".formatted(results.getInt(1),
-					results.getString(2), results.getDouble(3)));
+			listData.add(new Option(results.getInt(1), results.getString(2),
+					results.getString(3), results.getDouble(4), worldNum));
 		}
 		
 		stmt.close();
@@ -424,15 +473,15 @@ public class PizzaDBManager{
 		return listData;
 	}
 	
-	public static ArrayList<String> getAvailableCrusts() throws SQLException{
+	public static ArrayList<Option> getAvailableCrusts() throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
 		ResultSet results = stmt.executeQuery("SELECT OptionID, Name, Price FROM AvailableOption WHERE Type='C'");
-		ArrayList<String> listData = new ArrayList<>();
+		ArrayList<Option> listData = new ArrayList<>();
 		while(results.next()){
-			listData.add("OID: %d; Name: %s; Price: $%.2f".formatted(results.getInt(1),
-					results.getString(2), results.getDouble(3)));
+			listData.add(new Option(results.getInt(1), results.getString(2),
+					"C", results.getDouble(3), worldNum));
 		}
 		
 		stmt.close();
@@ -440,15 +489,15 @@ public class PizzaDBManager{
 		return listData;
 	}
 	
-	public static ArrayList<String> getAvailableSauces() throws SQLException{
+	public static ArrayList<Option> getAvailableSauces() throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
 		ResultSet results = stmt.executeQuery("SELECT OptionID, Name, Price FROM AvailableOption WHERE Type='S'");
-		ArrayList<String> listData = new ArrayList<>();
+		ArrayList<Option> listData = new ArrayList<>();
 		while(results.next()){
-			listData.add("OID: %d; Name: %s; Price: $%.2f".formatted(results.getInt(1),
-					results.getString(2), results.getDouble(3)));
+			listData.add(new Option(results.getInt(1), results.getString(2),
+					"S", results.getDouble(3), worldNum));
 		}
 		
 		stmt.close();
@@ -456,15 +505,15 @@ public class PizzaDBManager{
 		return listData;
 	}
 	
-	public static ArrayList<String> getAvailableToppings() throws SQLException{
+	public static ArrayList<Option> getAvailableToppings() throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
 		ResultSet results = stmt.executeQuery("SELECT OptionID, Name, Price FROM AvailableOption WHERE Type='T'");
-		ArrayList<String> listData = new ArrayList<>();
+		ArrayList<Option> listData = new ArrayList<>();
 		while(results.next()){
-			listData.add("OID: %d; Name: %s; Price: $%.2f".formatted(results.getInt(1),
-					results.getString(2), results.getDouble(3)));
+			listData.add(new Option(results.getInt(1), results.getString(2),
+					"T", results.getDouble(3), worldNum));
 		}
 		
 		stmt.close();
@@ -472,18 +521,17 @@ public class PizzaDBManager{
 		return listData;
 	}
 	
-	public static ArrayList<String> getUsedOptions(int PID) throws SQLException{
+	public static ArrayList<Option> getUsedOptions(int PID) throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
 		ResultSet results = stmt.executeQuery("SELECT UsedOption.OptionID, Name, Type, Price "+
 				"FROM UsedOption LEFT JOIN AvailableOption ON UsedOption.OptionID=AvailableOption.OptionID "+
 				"WHERE PizzaID="+PID);
-		ArrayList<String> listData = new ArrayList<>();
+		ArrayList<Option> listData = new ArrayList<>();
 		while(results.next()){
-			listData.add("OID: %d; Name: %s; Type: %s; Price: $%.2f".formatted(
-					results.getInt(1), results.getString(2),
-					results.getString(3), results.getDouble(4)));
+			listData.add(new Option(results.getInt(1), results.getString(2),
+					results.getString(3), results.getDouble(4), worldNum));
 		}
 		
 		stmt.close();
@@ -491,7 +539,7 @@ public class PizzaDBManager{
 		return listData;
 	}
 	
-	public static String getPizzaCrust(int PID) throws SQLException{
+	public static Option getPizzaCrust(int PID) throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -499,17 +547,17 @@ public class PizzaDBManager{
 				"FROM UsedOption LEFT JOIN AvailableOption ON UsedOption.OptionID=AvailableOption.OptionID "+
 				"WHERE PizzaID="+PID+" AND Type='C'");
 		if(!results.next()){
-			return "";
+			return null;
 		}
-		String val = "OID: %d; Name: %s; Price: $%.2f".formatted(results.getInt(1),
-					results.getString(2), results.getDouble(3));
+		Option crust = new Option(results.getInt(1), results.getString(2),
+				"C", results.getDouble(3), worldNum);
 		
 		stmt.close();
 		closeConn(conn);
-		return val;
+		return crust;
 	}
 	
-	public static String getPizzaSauce(int PID) throws SQLException{
+	public static Option getPizzaSauce(int PID) throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -517,27 +565,27 @@ public class PizzaDBManager{
 				"FROM UsedOption LEFT JOIN AvailableOption ON UsedOption.OptionID=AvailableOption.OptionID "+
 				"WHERE PizzaID="+PID+" AND Type='S'");
 		if(!results.next()){
-			return "";
+			return null;
 		}
-		String val = "OID: %d; Name: %s; Price: $%.2f".formatted(results.getInt(1),
-				results.getString(2), results.getDouble(3));
+		Option sauce = new Option(results.getInt(1), results.getString(2),
+				"S", results.getDouble(3), worldNum);
 		
 		stmt.close();
 		closeConn(conn);
-		return val;
+		return sauce;
 	}
 	
-	public static ArrayList<String> getPizzaToppings(int PID) throws SQLException{
+	public static ArrayList<Option> getPizzaToppings(int PID) throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
 		ResultSet results = stmt.executeQuery("SELECT UsedOption.OptionID, Name, Price "+
 				"FROM UsedOption LEFT JOIN AvailableOption ON UsedOption.OptionID=AvailableOption.OptionID "+
 				"WHERE PizzaID="+PID+" AND Type='T'");
-		ArrayList<String> listData = new ArrayList<>();
+		ArrayList<Option> listData = new ArrayList<>();
 		while(results.next()){
-			listData.add("OID: %d; Name: %s; Price: $%.2f".formatted(results.getInt(1),
-					results.getString(2), results.getDouble(3)));
+			listData.add(new Option(results.getInt(1), results.getString(2),
+					"T", results.getDouble(3), worldNum));
 		}
 		
 		stmt.close();
@@ -567,7 +615,7 @@ public class PizzaDBManager{
 		return val%3==mod3res ? val : generateID(mod3res);
 	}
 	
-	public static int getUniquePID() throws SQLException{//TODO test
+	public static int getUniquePID() throws SQLException{
 		ArrayList<Integer> usedPIDs;
 		usedPIDs = getPizzaIDs();
 		int val;
@@ -577,7 +625,7 @@ public class PizzaDBManager{
 		return val;
 	}
 	
-	public static int getUniqueOID() throws SQLException{//TODO test
+	public static int getUniqueOID() throws SQLException{
 		ArrayList<Integer> usedOIDs;
 		usedOIDs = getAvailableOptionIDs();
 		int val;
@@ -587,7 +635,7 @@ public class PizzaDBManager{
 		return val;
 	}
 	
-	public static int getUniqueCID() throws SQLException{//TODO test
+	public static int getUniqueCID() throws SQLException{
 		ArrayList<Integer> usedCIDs;
 		usedCIDs = getCustomerIDs();
 		int val;
@@ -597,173 +645,200 @@ public class PizzaDBManager{
 		return val;
 	}
 	
-	public static int getIDFromSummary(String summary){//TODO test
-		Matcher m = Pattern.compile("[POC]?ID: 0*(\\d+)").matcher(summary);
-		return m.find() ? Integer.parseInt(m.group(1)) : -1;
-	}
-	
-	public static int getPIDFromSummary(String summary){//TODO test
-		Matcher m = Pattern.compile("PID: 0*(\\d+)").matcher(summary);
-		return m.find() ? Integer.parseInt(m.group(1)) : -1;
-	}
-	
-	public static int getOIDFromSummary(String summary){//TODO test
-		Matcher m = Pattern.compile("OID: 0*(\\d+)").matcher(summary);
-		return m.find() ? Integer.parseInt(m.group(1)) : -1;
-	}
-	
-	public static int getCIDFromSummary(String summary){//TODO test
-		Matcher m = Pattern.compile("CID: 0*(\\d+)").matcher(summary);
-		return m.find() ? Integer.parseInt(m.group(1)) : -1;
-	}
-	
-	public static double getPriceFromSummary(String summary){//TODO test
-		Matcher m = Pattern.compile("Price: \\$(\\d+\\.?\\d*)").matcher(summary);
-		return m.find() ? Double.parseDouble(m.group(1)) : -1.0;
-	}
-	
-	public static void submitOrder(int CID, ArrayList<Integer> OIDs, String size, double price) throws SQLException{//TODO test
+	public static int submitOrder(int CID, ArrayList<Integer> OIDs, String size, double price) throws SQLException{
 		int PID = insertPizza(CID, size, price);
 		for(int OID : OIDs){
 			insertUsedOption(OID, PID);
 		}
+		return PID;
 	}
 	
-	public static int insertCustomer(String name, String address, String phoneNumber) throws SQLException{//TODO test
+	public static int submitOrder(Customer customer, ArrayList<Option> options, String size) throws SQLException{
+		double price = options.stream().mapToDouble(Option::getPrice).sum() + Pizza.getSizePrice(size);
+		return submitOrder(customer.getCID(), new ArrayList<>(options.stream().map(Option::getOID).toList()), size, price);
+	}
+	
+	public static int insertCustomer(String name, String address, String phoneNumber) throws SQLException{
 		int CID = getUniqueCID();
 		insertCustomer(CID, name, address, phoneNumber);
 		return CID;
 	}
 	
-	public static void insertCustomer(int CID, String name, String address, String phoneNumber) throws SQLException{//TODO test
+	public static void insertCustomer(int CID, String name, String address, String phoneNumber) throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
 		stmt.executeUpdate("INSERT INTO Customer VALUES (%d, '%s', '%s', '%s')".formatted(
 				CID, name, address, phoneNumber));
+		worldNum++;
 		
 		stmt.close();
 		closeConn(conn);
 	}
 	
-	public static int insertAvailableOption(String name, String type, double price) throws SQLException{//TODO test
+	public static int insertAvailableOption(String name, String type, double price) throws SQLException{
 		int OID = getUniqueOID();
 		insertAvailableOption(OID, name, type, price);
 		return OID;
 	}
 	
-	public static void insertAvailableOption(int OID, String name, String type, double price) throws SQLException{//TODO test
+	public static void insertAvailableOption(int OID, String name, String type, double price) throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
 		stmt.executeUpdate("INSERT INTO AvailableOption VALUES (%d, '%s', '%s', %f)".formatted(
 				OID, name, type, price));
+		worldNum++;
 		
 		stmt.close();
 		closeConn(conn);
 	}
 	
-	public static void insertUsedOption(int OID, int PID) throws SQLException{//TODO test
+	public static void insertUsedOption(int OID, int PID) throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
 		stmt.executeUpdate("INSERT INTO UsedOption VALUES (%d, %d)".formatted(OID, PID));
+		worldNum++;
 		
 		stmt.close();
 		closeConn(conn);
 	}
 	
-	public static int insertPizza(int CID, String size, double price) throws SQLException{//TODO test
+	public static int insertPizza(int CID, String size, double price) throws SQLException{
 		int PID = getUniquePID();
 		insertPizza(PID, CID, size, price);
 		return PID;
 	}
 	
-	public static void insertPizza(int PID, int CID, String size, double price) throws SQLException{//TODO test
+	public static void insertPizza(int PID, int CID, String size, double price) throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
 		stmt.executeUpdate("INSERT INTO Pizza VALUES (%d, %d, '%s', %f)".formatted(PID, CID, size, price));
+		worldNum++;
 		
 		stmt.close();
 		closeConn(conn);
 	}
 	
-	public static void updateCustomer(int CID, String name, String address, String phoneNumber) throws SQLException{//TODO test
+	public static void updateCustomer(int CID, String name, String address, String phoneNumber) throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
 		stmt.executeUpdate("UPDATE Customer SET Name='%s', Address='%s', PhoneNumber='%s' WHERE CustomerID=%d"
 				.formatted(name, address, phoneNumber, CID));
+		worldNum++;
 		
 		stmt.close();
 		closeConn(conn);
 	}
 	
-	public static void updateAvailableOption(int OID, String name, String type, double price) throws SQLException{//TODO test
+	public static void updateAvailableOption(int OID, String name, String type, double price) throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
 		stmt.executeUpdate("UPDATE AvailableOption SET Name='%s', Type='%s', Price=%f WHERE OptionID=%d"
 				.formatted(name, type, price, OID));
+		worldNum++;
 		
 		stmt.close();
 		closeConn(conn);
 	}
 	
-	public static void updatePizza(int PID, int CID, String size, double price) throws SQLException{//TODO test
+	public static void updatePizza(int PID, int CID, String size, double price) throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
 		stmt.executeUpdate("UPDATE Pizza SET CustomerID=%d, Size='%s', Price=%f WHERE PizzaID=%d"
 				.formatted(CID, size, price, PID));
+		worldNum++;
 		
 		stmt.close();
 		closeConn(conn);
 	}
 	
-	public static void removeCustomer(int CID) throws SQLException{//TODO test
+	public static void recalculatePizzaPrice(int PID) throws SQLException{
+		ArrayList<Option> usedOptions = getUsedOptions(PID);
+		String size = getPizzaSize(PID);
+		double price = usedOptions.stream().mapToDouble(Option::getPrice).sum() + Pizza.getSizePrice(size);
+		
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
-		stmt.executeUpdate("DELETE FROM Customer WHERE CustomerID=%d".formatted(CID));
+		stmt.executeUpdate("UPDATE Pizza SET Price=%f WHERE PizzaID=%d"
+				.formatted(price, PID));
+		worldNum++;
+		
+		stmt.close();
+		closeConn(conn);
+	}
+	
+	public static void removeCustomer(Customer customer) throws SQLException{
+		removeCustomer(customer.getCID());
+	}
+	
+	public static void removeCustomer(int CID) throws SQLException{
+		Connection conn = createConn();
+		Statement stmt = conn.createStatement();
+		
 		ResultSet results = stmt.executeQuery("SELECT PizzaID FROM Pizza WHERE CustomerID=%d"
 				.formatted(CID));
 		while(results.next()){
 			removePizza(results.getInt(1));
 		}
 		
+		stmt.executeUpdate("DELETE FROM Customer WHERE CustomerID=%d".formatted(CID));
+		worldNum++;
+		
 		stmt.close();
 		closeConn(conn);
 	}
 	
-	public static void removeAvailableOption(int OID) throws SQLException{//TODO test
+	public static void removeAvailableOption(Option option) throws SQLException{
+		removeAvailableOption(option.getOID());
+	}
+	
+	public static void removeAvailableOption(int OID) throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
-		stmt.executeUpdate("DELETE FROM AvailableOption WHERE OptionID=%d".formatted(OID));
 		stmt.executeUpdate("DELETE FROM UsedOption WHERE OptionID=%d".formatted(OID));
+		worldNum++;
+		stmt.executeUpdate("DELETE FROM AvailableOption WHERE OptionID=%d".formatted(OID));
+		worldNum++;
 		
 		stmt.close();
 		closeConn(conn);
 	}
 	
-	public static void removeUsedOption(int OID, int PID) throws SQLException{//TODO test
+	public static void removeUsedOption(Option option, Pizza pizza) throws SQLException{
+		removeUsedOption(option.getOID(), pizza.getPID());
+	}
+	
+	public static void removeUsedOption(int OID, int PID) throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
 		stmt.executeUpdate("DELETE FROM UsedOption WHERE OptionID=%d AND PizzaID=%d".formatted(OID, PID));
+		worldNum++;
 		
 		stmt.close();
 		closeConn(conn);
 	}
 	
-	public static void removePizza(int PID) throws SQLException{//TODO test
+	public static void removePizza(Pizza pizza) throws SQLException{
+		removePizza(pizza.getPID());
+	}
+	
+	public static void removePizza(int PID) throws SQLException{
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
-		stmt.executeUpdate("DELETE FROM Pizza WHERE PizzaID=%d".formatted(PID));
 		stmt.executeUpdate("DELETE FROM UsedOption WHERE PizzaID=%d".formatted(PID));
+		worldNum++;
+		stmt.executeUpdate("DELETE FROM Pizza WHERE PizzaID=%d".formatted(PID));
+		worldNum++;
 		
 		stmt.close();
 		closeConn(conn);
