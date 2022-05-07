@@ -13,5 +13,13 @@ public abstract class PizzaDBEntity{
 		return worldNum;
 	}
 	
+	public abstract boolean isPizza();
+	
+	public abstract boolean isOption();
+	
+	public abstract boolean isCustomer();
+	
+	public abstract String getEntityType();
+	
 	public abstract String toString();
 }

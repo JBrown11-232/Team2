@@ -87,7 +87,7 @@ public class Testing extends Application{
 		System.out.println("PizzaDBManager.getWorldNum() = " + PizzaDBManager.getWorldNum());
 		PizzaDBManager.removeAvailableOption(40);
 		PizzaDBManager.updateCustomer(new_customer.getCID(), new_customer.getName(), "None", "000-000-0000");
-		PizzaDBManager.updateAvailableOption(new_topping.getOID(), new_topping.getName(), new_topping.getType(), 1.0);
+		PizzaDBManager.updateAvailableOption(new_topping.getOID(), new_topping.getName(), new_topping.getOptionType(), 1.0);
 		PizzaDBManager.recalculatePizzaPrice(new_pizza.getPID());
 		new_customer = PizzaDBManager.getCustomer(new_customer.getCID());
 		new_topping = PizzaDBManager.getAvailableOption(new_topping.getOID());

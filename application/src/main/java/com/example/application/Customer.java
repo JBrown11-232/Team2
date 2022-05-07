@@ -32,6 +32,26 @@ public class Customer extends PizzaDBEntity{
 		return phoneNumber;
 	}
 	
+	@Override
+	public boolean isPizza(){
+		return false;
+	}
+	
+	@Override
+	public boolean isOption(){
+		return false;
+	}
+	
+	@Override
+	public boolean isCustomer(){
+		return true;
+	}
+	
+	@Override
+	public String getEntityType(){
+		return "Customer";
+	}
+	
 	public boolean equals(Customer other){
 		if(this.getWorldNum() != other.getWorldNum()){
 			System.out.println("WARNING: Comparing 2 Customers of different worlds!");

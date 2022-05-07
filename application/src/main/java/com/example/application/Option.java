@@ -28,11 +28,11 @@ public class Option extends PizzaDBEntity{
 		return price;
 	}
 	
-	public String getType(){
+	public String getOptionType(){
 		return type;
 	}
 	
-	public String getTypeName(){
+	public String getOptionTypeName(){
 		return switch(type){
 			case "C" -> "Crust";
 			case "S" -> "Sauce";
@@ -51,6 +51,26 @@ public class Option extends PizzaDBEntity{
 	
 	public boolean isTopping(){
 		return type.equals("T");
+	}
+	
+	@Override
+	public boolean isPizza(){
+		return false;
+	}
+	
+	@Override
+	public boolean isOption(){
+		return true;
+	}
+	
+	@Override
+	public boolean isCustomer(){
+		return false;
+	}
+	
+	@Override
+	public String getEntityType(){
+		return "Option";
 	}
 	
 	public boolean equals(Option other){

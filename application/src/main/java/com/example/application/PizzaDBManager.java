@@ -4,12 +4,12 @@ package com.example.application;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Random;
 
-//TODO add input filters for cntrl chars and ' (prepared statments)?
-//TODO make sure Option type and Pizza size are cut to one char
 //TODO validate pizzas having exactly 1 crust and sauce before updates
-//TODO check all void methods (and non voids)
+//TODO have some way to deal with invalid pizzas (EX ones that have their crust deleted on them from the AvailableOptions table)
+//TODO test methods with non-existent or invalid pizzas
 
 public class PizzaDBManager{
 	final static private String DB_URL = "jdbc:derby:PizzaDB;create=true";
@@ -645,17 +645,17 @@ public class PizzaDBManager{
 		return val;
 	}
 	
+	public static int submitOrder(Customer customer, ArrayList<Option> options, String size) throws SQLException{
+		double price = options.stream().mapToDouble(Option::getPrice).sum() + Pizza.getSizePrice(size);
+		return submitOrder(customer.getCID(), new ArrayList<>(options.stream().map(Option::getOID).toList()), size, price);
+	}
+	
 	public static int submitOrder(int CID, ArrayList<Integer> OIDs, String size, double price) throws SQLException{
 		int PID = insertPizza(CID, size, price);
 		for(int OID : OIDs){
 			insertUsedOption(OID, PID);
 		}
 		return PID;
-	}
-	
-	public static int submitOrder(Customer customer, ArrayList<Option> options, String size) throws SQLException{
-		double price = options.stream().mapToDouble(Option::getPrice).sum() + Pizza.getSizePrice(size);
-		return submitOrder(customer.getCID(), new ArrayList<>(options.stream().map(Option::getOID).toList()), size, price);
 	}
 	
 	public static int insertCustomer(String name, String address, String phoneNumber) throws SQLException{
@@ -666,10 +666,20 @@ public class PizzaDBManager{
 	
 	public static void insertCustomer(int CID, String name, String address, String phoneNumber) throws SQLException{
 		Connection conn = createConn();
-		Statement stmt = conn.createStatement();
+		PreparedStatement stmt = conn.prepareStatement("INSERT INTO Customer VALUES (?, ?, ?, ?)");
 		
-		stmt.executeUpdate("INSERT INTO Customer VALUES (%d, '%s', '%s', '%s')".formatted(
-				CID, name, address, phoneNumber));
+		if(CID < ID_LOWER_BOUND || CID > ID_UPPER_BOUND){
+			throw new RuntimeException("CID outside of acceptable range!");
+		}
+		if(name.length()==0){
+			throw new RuntimeException("Customer name cannot be empty!");
+		}
+		
+		stmt.setInt(1, CID);
+		stmt.setString(2, name);
+		stmt.setString(3, address);
+		stmt.setString(4, phoneNumber);
+		stmt.executeUpdate();
 		worldNum++;
 		
 		stmt.close();
@@ -684,10 +694,27 @@ public class PizzaDBManager{
 	
 	public static void insertAvailableOption(int OID, String name, String type, double price) throws SQLException{
 		Connection conn = createConn();
-		Statement stmt = conn.createStatement();
+		PreparedStatement stmt = conn.prepareStatement("INSERT INTO AvailableOption VALUES (?, ?, ?, ?)");
 		
-		stmt.executeUpdate("INSERT INTO AvailableOption VALUES (%d, '%s', '%s', %f)".formatted(
-				OID, name, type, price));
+		if(OID < ID_LOWER_BOUND || OID > ID_UPPER_BOUND){
+			throw new RuntimeException("OID outside of acceptable range!");
+		}
+		if(name.length()==0){
+			throw new RuntimeException("Option name cannot be empty!");
+		}
+		type = type.substring(0,1).toUpperCase(Locale.ROOT);
+		if(type.length()!=1 || !"CST".contains(type)){
+			throw new RuntimeException("Type must be C, S, or T!");
+		}
+		if(price < 0.0){
+			throw new RuntimeException("Price of option cannot be negative!");
+		}
+		
+		stmt.setInt(1, OID);
+		stmt.setString(2, name);
+		stmt.setString(3, type);
+		stmt.setDouble(4, price);
+		stmt.executeUpdate();
 		worldNum++;
 		
 		stmt.close();
@@ -696,9 +723,13 @@ public class PizzaDBManager{
 	
 	public static void insertUsedOption(int OID, int PID) throws SQLException{
 		Connection conn = createConn();
-		Statement stmt = conn.createStatement();
+		PreparedStatement stmt = conn.prepareStatement("INSERT INTO UsedOption VALUES (?, ?)");
 		
-		stmt.executeUpdate("INSERT INTO UsedOption VALUES (%d, %d)".formatted(OID, PID));
+		// No error checking needed since OID and PID have the foreign key constraint
+		
+		stmt.setInt(1, OID);
+		stmt.setInt(2, PID);
+		stmt.executeUpdate();
 		worldNum++;
 		
 		stmt.close();
@@ -713,45 +744,165 @@ public class PizzaDBManager{
 	
 	public static void insertPizza(int PID, int CID, String size, double price) throws SQLException{
 		Connection conn = createConn();
-		Statement stmt = conn.createStatement();
+		PreparedStatement stmt = conn.prepareStatement("INSERT INTO Pizza VALUES (?, ?, ?, ?)");
 		
-		stmt.executeUpdate("INSERT INTO Pizza VALUES (%d, %d, '%s', %f)".formatted(PID, CID, size, price));
+		if(PID < ID_LOWER_BOUND || PID > ID_UPPER_BOUND){
+			throw new RuntimeException("PID outside of acceptable range!");
+		}
+		// CID doesn't need to be checked since it has the foreign key constraint
+		size = size.substring(0,1).toUpperCase(Locale.ROOT);
+		if(!"SML".contains(size)){
+			throw new RuntimeException("Size must be S, M, or L!");
+		}
+		if(price < 0.0){
+			throw new RuntimeException("Price of pizza cannot be negative!");
+		}
+		
+		stmt.setInt(1, PID);
+		stmt.setInt(2, CID);
+		stmt.setString(3, size);
+		stmt.setDouble(4, price);
+		stmt.executeUpdate();
 		worldNum++;
 		
 		stmt.close();
 		closeConn(conn);
+	}
+	
+	public static void updateCustomerName(int CID, String name) throws SQLException{
+		updateCustomerName(getCustomer(CID), name);
+	}
+	
+	public static void updateCustomerName(Customer customer, String name) throws SQLException{
+		updateCustomer(customer.getCID(), name, customer.getAddress(), customer.getPhoneNumber());
+	}
+	
+	public static void updateCustomerAddress(int CID, String address) throws SQLException{
+		updateCustomerAddress(getCustomer(CID), address);
+	}
+	
+	public static void updateCustomerAddress(Customer customer, String address) throws SQLException{
+		updateCustomer(customer.getCID(), customer.getName(), address, customer.getPhoneNumber());
+	}
+	
+	public static void updateCustomerPhoneNumber(int CID, String phoneNumber) throws SQLException{
+		updateCustomerPhoneNumber(getCustomer(CID), phoneNumber);
+	}
+	
+	public static void updateCustomerPhoneNumber(Customer customer, String phoneNumber) throws SQLException{
+		updateCustomer(customer.getCID(), customer.getName(), customer.getAddress(), phoneNumber);
 	}
 	
 	public static void updateCustomer(int CID, String name, String address, String phoneNumber) throws SQLException{
 		Connection conn = createConn();
-		Statement stmt = conn.createStatement();
+		PreparedStatement stmt = conn.prepareStatement("UPDATE Customer SET Name=?, Address=?, PhoneNumber=? WHERE CustomerID=?");
 		
-		stmt.executeUpdate("UPDATE Customer SET Name='%s', Address='%s', PhoneNumber='%s' WHERE CustomerID=%d"
-				.formatted(name, address, phoneNumber, CID));
+		if(name.length()==0){
+			throw new RuntimeException("Customer name cannot be empty!");
+		}
+		
+		stmt.setString(1, name);
+		stmt.setString(2, address);
+		stmt.setString(3, phoneNumber);
+		stmt.setInt(4, CID);
+		stmt.executeUpdate();
 		worldNum++;
 		
 		stmt.close();
 		closeConn(conn);
+	}
+	
+	public static void updateAvailableOptionName(int OID, String name) throws SQLException{
+		updateAvailableOptionName(getAvailableOption(OID), name);
+	}
+	
+	public static void updateAvailableOptionName(Option option, String name) throws SQLException{
+		updateAvailableOption(option.getOID(), name, option.getOptionType(), option.getPrice());
+	}
+	
+	public static void updateAvailableOptionType(int OID, String type) throws SQLException{
+		updateAvailableOptionType(getAvailableOption(OID), type);
+	}
+	
+	public static void updateAvailableOptionType(Option option, String type) throws SQLException{
+		updateAvailableOption(option.getOID(), option.getName(), type, option.getPrice());
+	}
+	
+	public static void updateAvailableOptionPrice(int OID, double price) throws SQLException{
+		updateAvailableOptionPrice(getAvailableOption(OID), price);
+	}
+	
+	public static void updateAvailableOptionPrice(Option option, double price) throws SQLException{
+		updateAvailableOption(option.getOID(), option.getName(), option.getOptionType(), price);
 	}
 	
 	public static void updateAvailableOption(int OID, String name, String type, double price) throws SQLException{
 		Connection conn = createConn();
-		Statement stmt = conn.createStatement();
+		PreparedStatement stmt = conn.prepareStatement("UPDATE AvailableOption SET Name=?, Type=?, Price=? WHERE OptionID=?");
 		
-		stmt.executeUpdate("UPDATE AvailableOption SET Name='%s', Type='%s', Price=%f WHERE OptionID=%d"
-				.formatted(name, type, price, OID));
+		if(name.length()==0){
+			throw new RuntimeException("Option name cannot be empty!");
+		}
+		type = type.substring(0,1).toUpperCase(Locale.ROOT);
+		if(type.length()!=1 || !"CST".contains(type)){
+			throw new RuntimeException("Type must be C, S, or T!");
+		}
+		if(price < 0.0){
+			throw new RuntimeException("Price of option cannot be negative!");
+		}
+		
+		stmt.setString(1, name);
+		stmt.setString(2, type);
+		stmt.setDouble(3, price);
+		stmt.setInt(4, OID);
+		stmt.executeUpdate();
 		worldNum++;
 		
 		stmt.close();
 		closeConn(conn);
 	}
 	
+	public static void updatePizzaCustomerID(int PID, int CID) throws SQLException{
+		updatePizzaCustomerID(getPizza(PID), CID);
+	}
+	
+	public static void updatePizzaCustomerID(Pizza pizza, int CID) throws SQLException{
+		updatePizza(pizza.getPID(), CID, pizza.getSize(), pizza.getPrice());
+	}
+	
+	public static void updatePizzaSize(int PID, String size) throws SQLException{
+		updatePizzaSize(getPizza(PID), size);
+	}
+	
+	public static void updatePizzaSize(Pizza pizza, String size) throws SQLException{
+		updatePizza(pizza.getPID(), pizza.getCID(), size, pizza.getPrice());
+	}
+	
+	public static void updatePizzaPrice(int PID, double price) throws SQLException{
+		updatePizzaPrice(getPizza(PID), price);
+	}
+	
+	public static void updatePizzaPrice(Pizza pizza, double price) throws SQLException{
+		updatePizza(pizza.getPID(), pizza.getCID(), pizza.getSize(), price);
+	}
+	
 	public static void updatePizza(int PID, int CID, String size, double price) throws SQLException{
 		Connection conn = createConn();
-		Statement stmt = conn.createStatement();
+		PreparedStatement stmt = conn.prepareStatement("UPDATE Pizza SET CustomerID=?, Size=?, Price=? WHERE PizzaID=?");
 		
-		stmt.executeUpdate("UPDATE Pizza SET CustomerID=%d, Size='%s', Price=%f WHERE PizzaID=%d"
-				.formatted(CID, size, price, PID));
+		size = size.substring(0,1).toUpperCase(Locale.ROOT);
+		if(!"SML".contains(size)){
+			throw new RuntimeException("Size must be S, M, or L!");
+		}
+		if(price < 0.0){
+			throw new RuntimeException("Price of pizza cannot be negative!");
+		}
+		
+		stmt.setInt(1, CID);
+		stmt.setString(2, size);
+		stmt.setDouble(3, price);
+		stmt.setInt(4, PID);
+		stmt.executeUpdate();
 		worldNum++;
 		
 		stmt.close();
@@ -759,19 +910,12 @@ public class PizzaDBManager{
 	}
 	
 	public static void recalculatePizzaPrice(int PID) throws SQLException{
-		ArrayList<Option> usedOptions = getUsedOptions(PID);
-		String size = getPizzaSize(PID);
-		double price = usedOptions.stream().mapToDouble(Option::getPrice).sum() + Pizza.getSizePrice(size);
+		Pizza pizza = getPizza(PID);
+		ArrayList<Option> toppings = pizza.getToppings();
+		double price = toppings.stream().mapToDouble(Option::getPrice).sum() + pizza.getCrust().getPrice() +
+				pizza.getSauce().getPrice() + Pizza.getSizePrice(pizza.getSize());
 		
-		Connection conn = createConn();
-		Statement stmt = conn.createStatement();
-		
-		stmt.executeUpdate("UPDATE Pizza SET Price=%f WHERE PizzaID=%d"
-				.formatted(price, PID));
-		worldNum++;
-		
-		stmt.close();
-		closeConn(conn);
+		updatePizzaPrice(pizza, price);
 	}
 	
 	public static void removeCustomer(Customer customer) throws SQLException{

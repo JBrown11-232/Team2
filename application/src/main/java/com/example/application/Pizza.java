@@ -19,6 +19,9 @@ public class Pizza extends PizzaDBEntity{
 	public Pizza(int PID, Customer customer, String size, Option crust, Option sauce,
 				 ArrayList<Option> toppings, double price, int worldNum){
 		super(worldNum);
+		if(customer == null){
+			throw new RuntimeException("Every pizza must have a customer!");
+		}
 		if(crust==null || sauce==null){
 			throw new RuntimeException("Every pizza must have a crust and sauce!");
 		}
@@ -43,20 +46,20 @@ public class Pizza extends PizzaDBEntity{
 		Option sauce = null;
 		ArrayList<Option> toppings = new ArrayList<>();
 		for(Option option : usedOptions){
-			switch(option.getTypeName()){
-				case "Crust" -> {
+			switch(option.getOptionType()){
+				case "C" -> {
 					if(crust != null){
 						throw new RuntimeException("A Pizza may only have 1 crust!");
 					}
 					crust = option;
 				}
-				case "Sauce" -> {
+				case "S" -> {
 					if(sauce != null){
 						throw new RuntimeException("A Pizza may only have 1 sauce!");
 					}
 					sauce = option;
 				}
-				case "Topping" -> toppings.add(option);
+				case "T" -> toppings.add(option);
 			}
 		}
 		if(crust==null || sauce==null){
@@ -96,6 +99,39 @@ public class Pizza extends PizzaDBEntity{
 		return price;
 	}
 	
+	@Override
+	public boolean isPizza(){
+		return true;
+	}
+	
+	@Override
+	public boolean isOption(){
+		return false;
+	}
+	
+	@Override
+	public boolean isCustomer(){
+		return false;
+	}
+	
+	@Override
+	public String getEntityType(){
+		return "Pizza";
+	}
+	
+	public String getSizeName(){
+		return switch(size){
+			case "S" -> "Small";
+			case "M" -> "Medium";
+			case "L" -> "Large";
+			default -> throw new RuntimeException("WARNING: Can't understand size " + size + "!");
+		};
+	}
+	
+	public int getCID(){
+		return customer.getCID();
+	}
+	
 	public static double getSizePrice(String size){
 		return switch(size){
 			case "S" -> SMALL_PRICE;
@@ -103,17 +139,6 @@ public class Pizza extends PizzaDBEntity{
 			case "L" -> LARGE_PRICE;
 			default -> throw new RuntimeException("WARNING: Can't find price of size " + size + "!");
 		};
-	}
-	
-	public boolean equals(Pizza other){
-		if(this.getWorldNum() != other.getWorldNum()){
-			System.out.println("WARNING: Comparing 2 Options of different worlds!");
-			return this.PID==other.PID && this.customer.equals(other.customer) &&
-					this.size.equals(other.size) && this.crust.equals(other.crust) &&
-					this.sauce.equals(other.sauce) && this.toppings.equals(other.toppings) &&
-					this.price==other.price;
-		}
-		return this.PID == other.PID;
 	}
 	
 	public static String toppingsCommaDelimited(ArrayList<Option> toppings){
@@ -125,6 +150,17 @@ public class Pizza extends PizzaDBEntity{
 			stringBuilder.append(option.getName());
 		}
 		return stringBuilder.toString();
+	}
+	
+	public boolean equals(Pizza other){
+		if(this.getWorldNum() != other.getWorldNum()){
+			System.out.println("WARNING: Comparing 2 Pizzas of different worlds!");
+			return this.PID==other.PID && this.customer.equals(other.customer) &&
+					this.size.equals(other.size) && this.crust.equals(other.crust) &&
+					this.sauce.equals(other.sauce) && this.toppings.equals(other.toppings) &&
+					this.price==other.price;
+		}
+		return this.PID == other.PID;
 	}
 	
 	@Override
