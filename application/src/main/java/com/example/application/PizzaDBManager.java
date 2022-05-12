@@ -15,7 +15,6 @@ public class PizzaDBManager{
 	final static private String DB_URL = "jdbc:derby:PizzaDB;create=true";
 	final static private int ID_LOWER_BOUND = 1;
 	final static private int ID_UPPER_BOUND = 100000000;
-	
 	static private int worldNum = 0;
 	
 	public static int getWorldNum(){
@@ -40,6 +39,7 @@ public class PizzaDBManager{
 			closeConn(conn);
 			worldNum = Math.abs(worldNum);
 			for(int PID : getPizzaIDs()){
+				// Needed to calculate the correct price of pizzas since we gave them a price of 0.0 earlier
 				recalculatePizzaPrice(PID);
 			}
 		}
@@ -130,11 +130,12 @@ public class PizzaDBManager{
 		stmt.executeUpdate("CREATE TABLE Pizza (PizzaID INT NOT NULL PRIMARY KEY, "+
 				"CustomerID INT REFERENCES Customer(CustomerID), Size CHAR(1), Price DOUBLE)");
 		
-		stmt.executeUpdate("INSERT INTO Pizza VALUES (3, 5, 'S', 10.99)");
-		stmt.executeUpdate("INSERT INTO Pizza VALUES (6, 5, 'M', 15.59)");
-		stmt.executeUpdate("INSERT INTO Pizza VALUES (9, 5, 'L', 20.99)");
-		stmt.executeUpdate("INSERT INTO Pizza VALUES (12, 2, 'L', 24.29)");
-		stmt.executeUpdate("INSERT INTO Pizza VALUES (15, 14, 'M', 12.99)");
+		// Enter with a price of zero since we will calculate later
+		stmt.executeUpdate("INSERT INTO Pizza VALUES (3, 5, 'S', 0.0)");
+		stmt.executeUpdate("INSERT INTO Pizza VALUES (6, 5, 'M', 0.0)");
+		stmt.executeUpdate("INSERT INTO Pizza VALUES (9, 5, 'L', 0.0)");
+		stmt.executeUpdate("INSERT INTO Pizza VALUES (12, 2, 'L', 0.0)");
+		stmt.executeUpdate("INSERT INTO Pizza VALUES (15, 14, 'M', 0.0)");
 		
 		stmt.close();
 	}
