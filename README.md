@@ -11,7 +11,7 @@ A build your own pizza application which will:
 * One final table will store the list of customers
 
 ### Roles:
-* Josh - PizzaDBManager
+* Josh - PizzaDBManager and PizzaDBEntity (and its subclasses)
 * Ian - Taking the Customers Order
 * Eric - changing the option prices
 * Connor - Display Costs
