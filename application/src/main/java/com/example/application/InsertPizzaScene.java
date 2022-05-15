@@ -16,6 +16,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
+import javafx.util.Callback;
+import javafx.util.StringConverter;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -33,17 +35,23 @@ public class InsertPizzaScene{
 	final private static ListView<Option> pizzaToppingsListView = new ListView<>();
 	final private static TextField CIDField = new TextField();
 	final private static Label outputLabel = new Label();
+	final private static Button buildPizza = new Button("Build Pizza!");
 
 	public static Scene createInsertPizzaScene(){
 		//Creates and add the three radio buttons to the toggle group
 		ToggleGroup pizzaSizeToggleGroup = new ToggleGroup();
 		pizzaSizeToggleGroup.getToggles().setAll(smallPizza, mediumPizza, largePizza);
 		
-		//Creating a button that will create the pizza
-		Button buildPizza = new Button("Build Pizza!");
+		//Set event handlers
 		buildPizza.setOnAction(event -> handleButton());
 		Button reloadButton = new Button("Reload");
 		reloadButton.setOnAction(event -> reloadData());
+		CIDField.textProperty().addListener(event -> setDisabledInsertStatus());
+		smallPizza.setOnAction(event -> setDisabledInsertStatus());
+		mediumPizza.setOnAction(event -> setDisabledInsertStatus());
+		largePizza.setOnAction(event -> setDisabledInsertStatus());
+		pizzaCrustComboBox.setOnAction(event -> setDisabledInsertStatus());
+		pizzaSauceComboBox.setOnAction(event -> setDisabledInsertStatus());
 		
 		//Labels to show information to user
 		Label title = new Label("Build Your Own Pizza");
@@ -55,11 +63,27 @@ public class InsertPizzaScene{
 		Label pizzaSauceLabel = new Label("Sauce: ");
 		Label pizzaToppingsLabel = new Label("Toppings: ");
 		
-		//Adding items from database into the combo boxes
-		reloadData();
 		//Creating and limiting the list view for toppings
+		
+		StringConverter<Option> converter = new StringConverter<>() {
+			@Override
+			public String toString(Option object) {
+				return object!=null ? object.getName() : "";
+			}
+			
+			@Override
+			public Option fromString(String string) {
+				return null;
+			}
+		};
+		pizzaCrustComboBox.setConverter(converter);
+		pizzaSauceComboBox.setConverter(converter);
 		pizzaToppingsListView.setMaxSize(listViewWidth,listViewHeight);
 		pizzaToppingsListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+		pizzaToppingsListView.setCellFactory(new OptionCellFactory());
+		
+		//Adding items from database into the combo boxes
+		reloadData();
 		
 		//Creating GUI
 		HBox sizeButtons = new HBox(smallPizza, mediumPizza, largePizza);
@@ -83,6 +107,8 @@ public class InsertPizzaScene{
 		subroot.setSpacing(10.0);
 		subroot.setPadding(new Insets(10));
 		subroot.setAlignment(Pos.CENTER);
+		
+		setDisabledInsertStatus();
 		
 		//Adding menu bar
 		MenuBar menuBar = DuesPizzaApplication.createMenuBar();
@@ -134,6 +160,7 @@ public class InsertPizzaScene{
 			pizzaToppingsListView.getItems().setAll(FXCollections.observableArrayList(PizzaDBManager.getAvailableToppings()));
 			pizzaCrustComboBox.setValue(null);
 			pizzaSauceComboBox.setValue(null);
+			setDisabledInsertStatus();
 		}
 		catch(SQLException ex){
 			System.out.println("ERROR: " + ex.getMessage());
@@ -142,6 +169,30 @@ public class InsertPizzaScene{
 	
 	public static void preloadCIDField(int CID){
 		CIDField.setText(""+CID);
+	}
+	
+	private static void setDisabledInsertStatus(){
+		boolean sizeSelected = smallPizza.isSelected() || mediumPizza.isSelected() || largePizza.isSelected();
+		boolean status = CIDField.getText().equals("") || !sizeSelected || pizzaCrustComboBox.getValue()==null ||
+				pizzaSauceComboBox.getValue()==null;
+		buildPizza.setDisable(status);
+	}
+}
+
+class OptionCellFactory implements Callback<ListView<Option>, ListCell<Option>>{
+	@Override
+	public ListCell<Option> call(ListView<Option> param) {
+		return new ListCell<>(){
+			@Override
+			public void updateItem(Option topping, boolean empty) {
+				super.updateItem(topping, empty);
+				if (empty || topping == null) {
+					setText(null);
+				} else {
+					setText(topping.getName());
+				}
+			}
+		};
 	}
 }
 
