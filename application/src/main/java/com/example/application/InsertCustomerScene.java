@@ -24,6 +24,7 @@ public class InsertCustomerScene{
 	final private static TextField customerAddressTextField = new TextField();
 	final private static TextField customerPhoneNumberTextField = new TextField();
 	final private static Label outputLabel = new Label();
+	final private static Button createCustomerButton = new Button("Add Customer!");
 	
 	public static Scene createInsertCustomerScene(){
 		//Creating Labels
@@ -34,9 +35,11 @@ public class InsertCustomerScene{
 		Label customerAddressLabel = new Label("Enter Your Address: ");
 		Label customerPhoneNumberLabel = new Label("Enter Your Phone Number: ");
 		
-		//Button that creates customer id
-		Button createCustomerButton = new Button("Add Customer!");
+		//Set event handlers
 		createCustomerButton.setOnAction(actionEvent -> handleButton());
+		customerNameTextField.textProperty().addListener(event -> setDisabledInsertStatus());
+		customerAddressTextField.textProperty().addListener(event -> setDisabledInsertStatus());
+		customerPhoneNumberTextField.textProperty().addListener(event -> setDisabledInsertStatus());
 		
 		//Creating GUI
 		GridPane subroot = new GridPane();
@@ -53,6 +56,7 @@ public class InsertCustomerScene{
 		subroot.setPadding(new Insets(10));
 		subroot.setAlignment(Pos.CENTER);
 		
+		setDisabledInsertStatus();
 		
 		//Adding a menu bar
 		MenuBar menuBar = DuesPizzaApplication.createMenuBar();
@@ -73,5 +77,11 @@ public class InsertCustomerScene{
 		catch(Exception ex){
 			outputLabel.setText("Failed to add customer!\n"+ex.getMessage());
 		}
+	}
+	
+	private static void setDisabledInsertStatus(){
+		boolean status = customerNameTextField.getText().equals("") ||
+				customerAddressTextField.getText().equals("") || customerPhoneNumberTextField.getText().equals("");
+		createCustomerButton.setDisable(status);
 	}
 }
