@@ -451,7 +451,7 @@ public class PizzaDBManager{
 			return -1.0;
 		}
 		double val = results.getDouble(1);
-		
+
 		stmt.close();
 		closeConn(conn);
 		return val;
