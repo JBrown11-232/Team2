@@ -5,8 +5,9 @@ package com.example.application;
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.sql.SQLException;
@@ -106,10 +107,13 @@ public class Testing extends Application{
 	}
 	
 	@Override
-	public void start(Stage primaryStage){
-		HBox root = new HBox(new Label("JFX is cool!"));
+	public void start(Stage primaryStage) throws SQLException{
+		ComboBox<Option> cb = new ComboBox<>();
+		cb.getItems().setAll(PizzaDBManager.getAvailableCrusts());
+		
+		VBox root = new VBox(new Label("JFX is cool!"), cb);
 		root.setAlignment(Pos.CENTER);
-		Scene scene = new Scene(root, 200, 200);
+		Scene scene = new Scene(root, 600, 300);
 		primaryStage.setTitle("Testing");
 		primaryStage.setScene(scene);
 		primaryStage.show();
