@@ -1,5 +1,11 @@
+/*
+		Created by Ian Durant for Team 2
+ 		Refactored by Josh Brown
+*/
+
 package com.example.application;
 
+//Import Statements
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -13,21 +19,26 @@ import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
 public class InsertCustomerScene{
+	//Creating variables
 	final private static TextField customerNameTextField = new TextField();
 	final private static TextField customerAddressTextField = new TextField();
 	final private static TextField customerPhoneNumberTextField = new TextField();
 	final private static Label outputLabel = new Label();
 	
 	public static Scene createInsertCustomerScene(){
+		//Creating Labels
 		Label title = new Label("Add new Customer");
 		title.setTextAlignment(TextAlignment.CENTER);
 		title.setFont(new Font(24));
 		Label customerNameLabel = new Label("Enter Your Name: ");
 		Label customerAddressLabel = new Label("Enter Your Address: ");
 		Label customerPhoneNumberLabel = new Label("Enter Your Phone Number: ");
+		
+		//Button that creates customer id
 		Button createCustomerButton = new Button("Add Customer!");
 		createCustomerButton.setOnAction(actionEvent -> handleButton());
 		
+		//Creating GUI
 		GridPane subroot = new GridPane();
 		subroot.add(customerNameLabel, 0, 0);
 		subroot.add(customerAddressLabel, 0, 1);
@@ -42,6 +53,8 @@ public class InsertCustomerScene{
 		subroot.setPadding(new Insets(10));
 		subroot.setAlignment(Pos.CENTER);
 		
+		
+		//Adding a menu bar
 		MenuBar menuBar = DuesPizzaApplication.createMenuBar();
 		VBox root = new VBox(menuBar, title, subroot);
 		root.setAlignment(Pos.TOP_CENTER);
@@ -49,6 +62,8 @@ public class InsertCustomerScene{
 	}
 	
 	private static void handleButton(){
+		//REQUIREMENT 2: String input
+		//Creating and displaying customer ID
 		try{
 			int CID = PizzaDBManager.insertCustomer(customerNameTextField.getText(),
 					customerAddressTextField.getText(), customerPhoneNumberTextField.getText());

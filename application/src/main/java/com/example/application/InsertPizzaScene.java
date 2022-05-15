@@ -1,5 +1,11 @@
+/*
+		Created by Ian Durant for Team 2
+ 		Refactored by Josh Brown
+*/
+
 package com.example.application;
 
+//Import Statements
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -15,7 +21,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class InsertPizzaScene{
-	//ListView Size Variables
+	//Variables
 	final private static double listViewWidth = 300, listViewHeight = 200;
 	
 	// Requirement 8 radiobuttons, comboboxes, and listview
@@ -29,13 +35,17 @@ public class InsertPizzaScene{
 	final private static Label outputLabel = new Label();
 
 	public static Scene createInsertPizzaScene(){
+		//Creates and add the three radio buttons to the toggle group
 		ToggleGroup pizzaSizeToggleGroup = new ToggleGroup();
 		pizzaSizeToggleGroup.getToggles().setAll(smallPizza, mediumPizza, largePizza);
+		
+		//Creating a button that will create the pizza
 		Button buildPizza = new Button("Build Pizza!");
 		buildPizza.setOnAction(event -> handleButton());
 		Button reloadButton = new Button("Reload");
 		reloadButton.setOnAction(event -> reloadData());
-
+		
+		//Labels to show information to user
 		Label title = new Label("Build Your Own Pizza");
 		title.setTextAlignment(TextAlignment.CENTER);
 		title.setFont(new Font(24));
@@ -44,11 +54,14 @@ public class InsertPizzaScene{
 		Label pizzaCrustLabel = new Label("Crust: ");
 		Label pizzaSauceLabel = new Label("Sauce: ");
 		Label pizzaToppingsLabel = new Label("Toppings: ");
-
+		
+		//Adding items from database into the combo boxes
 		reloadData();
+		//Creating and limiting the list view for toppings
 		pizzaToppingsListView.setMaxSize(listViewWidth,listViewHeight);
 		pizzaToppingsListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		
+		//Creating GUI
 		GridPane v1 = new GridPane();
 		v1.add(customerIDLabel, 0, 0);
 		v1.add(CIDField, 1, 0);
@@ -68,6 +81,7 @@ public class InsertPizzaScene{
 		subroot.setPadding(new Insets(10));
 		subroot.setAlignment(Pos.CENTER);
 		
+		//Adding menu bar
 		MenuBar menuBar = DuesPizzaApplication.createMenuBar();
 		VBox root = new VBox(menuBar, title, subroot);
 		root.setAlignment(Pos.TOP_CENTER);
@@ -75,7 +89,10 @@ public class InsertPizzaScene{
 	}
 
 	private static void handleButton(){
+		//Holds the size of the Pizza
 		String pizzaSize;
+		
+		//Checks which radio button is selected
 		try{
 			if (smallPizza.isSelected()){
 				pizzaSize = "S";
@@ -86,12 +103,13 @@ public class InsertPizzaScene{
 			} else{
 				throw new RuntimeException("A size must be selected!");
 			}
-			// Requirement 2 get numeric input
+			//REQUIREMENT 2: Numerical input
 			int CID = Integer.parseInt(CIDField.getText());
 			Customer customer = PizzaDBManager.getCustomer(CID);
 			if(customer == null){
 				throw new RuntimeException("Customer of ID %d could not be found!".formatted(CID));
 			}
+			//Submitting the order
 			PizzaDBManager.submitOrder(customer,
 					new ArrayList<>(pizzaToppingsListView.getSelectionModel().getSelectedItems().stream().toList()), pizzaSize);
 			outputLabel.setText("Submitted Pizza!");
