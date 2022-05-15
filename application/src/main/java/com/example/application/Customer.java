@@ -2,6 +2,7 @@
 
 package com.example.application;
 
+// Requirement 7 inheritance
 public class Customer extends PizzaDBEntity{
 	final private int CID;
 	final private String name;

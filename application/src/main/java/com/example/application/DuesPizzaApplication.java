@@ -1,16 +1,4 @@
-/*
-	Created By Ian Durant for Team 2
- */
-
-//Some things still need to do/ most likely still need to do
-//Set up the scenes correctly, so that they have their own scenes
-//Add it to the database?
-//Add comments
-//Making sure it works with the other parts of the program correctly
-//Changing of test names
-//Visual improvements
-
-//TODO relink creation methods
+//Written by Josh Brown
 
 package com.example.application;
 
@@ -23,37 +11,35 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.sql.SQLException;
-
 public class DuesPizzaApplication extends Application{
 	public static Scene IPS;
-	public static Scene IOS;
 	public static Scene ICS;
-	public static Scene UPS;
 	public static Scene UOS;
-	public static Scene UCS;
-	public static Scene Home;
-	public static Scene Help;
+	public static Scene HomeScene;
+	public static Scene HelpScene;
+	public static Scene ROS;
 	private static Stage primaryStage;
+	final public static int SCENEHEIGHT = 600;
+	final public static int SCENEWIDTH = 1000;
 	
 	public static void main(String[] args){
 		PizzaDBManager.createDB();
 		launch(args);
 	}
 	
-	public void start(Stage primaryStage) throws SQLException{
+	public void start(Stage primaryStage){
 		DuesPizzaApplication.primaryStage = primaryStage;
 		
-		Home = HomeScene.createHomeScene();
-		createHelp();
+		HomeScene = Home.createHomeScene();
+		HelpScene = Help.createHelpScene();
 		IPS = InsertPizzaScene.createInsertPizzaScene();
-		createInsertOptionScene();
 		ICS = InsertCustomerScene.createInsertCustomerScene();
-		createUpdatePizzaScene();
+		//TODO link to eric's scene
 		createUpdateOptionScene();
-		createUpdateCustomerScene();
+		//TODO line to connor's scene
+		createReviewOrderScene();
 		
-		primaryStage.setScene(Home);
+		primaryStage.setScene(HomeScene);
 		primaryStage.setTitle("Due's Pizza Application");
 		primaryStage.show();
 	}
@@ -61,57 +47,37 @@ public class DuesPizzaApplication extends Application{
 	public static MenuBar createMenuBar(){
 		MenuItem homeItem = new MenuItem("Home Page");
 		MenuItem helpItem = new MenuItem("Help Menu");
-		MenuItem IP = new MenuItem("Insert Pizza");
-		MenuItem IO = new MenuItem("Insert Option");
-		MenuItem IC = new MenuItem("Insert Customer");
-		MenuItem UP = new MenuItem("Update Pizza");
+		MenuItem IP = new MenuItem("Create Pizza");
+		MenuItem IC = new MenuItem("Create Customer");
 		MenuItem UO = new MenuItem("Update Option");
-		MenuItem UC = new MenuItem("Update Customer");
+		MenuItem RO = new MenuItem("Review Order");
 		Menu startMenu = new Menu("Start");
-		Menu insertMenu = new Menu("Insert");
-		Menu updateMenu = new Menu("Update");
+		Menu insertMenu = new Menu("Create New...");
+		Menu updateMenu = new Menu("Update...");
+		Menu reviewMenu = new Menu("Review...");
 		startMenu.getItems().setAll(homeItem, helpItem);
-		insertMenu.getItems().setAll(IP, IO, IC);
-		updateMenu.getItems().setAll(UP, UO, UC);
-		MenuBar menuBar = new MenuBar(startMenu, insertMenu, updateMenu);
-		homeItem.setOnAction(event -> primaryStage.setScene(Home));
-		helpItem.setOnAction(event -> primaryStage.setScene(Help));
+		insertMenu.getItems().setAll(IP, IC);
+		updateMenu.getItems().setAll(UO);
+		reviewMenu.getItems().setAll(RO);
+		MenuBar menuBar = new MenuBar(startMenu, insertMenu, updateMenu, reviewMenu);
+		homeItem.setOnAction(event -> primaryStage.setScene(HomeScene));
+		helpItem.setOnAction(event -> primaryStage.setScene(HelpScene));
 		IP.setOnAction(event -> primaryStage.setScene(IPS));
-		IO.setOnAction(event -> primaryStage.setScene(IOS));
 		IC.setOnAction(event -> primaryStage.setScene(ICS));
-		UP.setOnAction(event -> primaryStage.setScene(UPS));
 		UO.setOnAction(event -> primaryStage.setScene(UOS));
-		UC.setOnAction(event -> primaryStage.setScene(UCS));
+		RO.setOnAction(event -> primaryStage.setScene(ROS));
 		return menuBar;
-	}
-	
-	private void createHelp(){
-		MenuBar menuBar = createMenuBar();
-		VBox root = new VBox(menuBar, new Label("Help"));
-		Help = new Scene(root);
-	}
-	
-	private void createInsertOptionScene(){
-		MenuBar menuBar = createMenuBar();
-		VBox root = new VBox(menuBar, new Label("Insert Option"));
-		IOS = new Scene(root);
-	}
-	
-	private void createUpdatePizzaScene(){
-		MenuBar menuBar = createMenuBar();
-		VBox root = new VBox(menuBar, new Label("Update Pizza"));
-		UPS = new Scene(root);
 	}
 	
 	private void createUpdateOptionScene(){
 		MenuBar menuBar = createMenuBar();
 		VBox root = new VBox(menuBar, new Label("Update Option"));
-		UOS = new Scene(root);
+		UOS = new Scene(root, SCENEWIDTH, SCENEHEIGHT);
 	}
 	
-	private void createUpdateCustomerScene(){
+	private void createReviewOrderScene(){
 		MenuBar menuBar = createMenuBar();
-		VBox root = new VBox(menuBar, new Label("Update Customer"));
-		UCS = new Scene(root);
+		VBox root = new VBox(menuBar, new Label("Review Order"));
+		ROS = new Scene(root, SCENEWIDTH, SCENEHEIGHT);
 	}
 }

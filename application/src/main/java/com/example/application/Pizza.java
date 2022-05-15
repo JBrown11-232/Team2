@@ -4,6 +4,7 @@ package com.example.application;
 
 import java.util.ArrayList;
 
+// Requirement 7 inheritance
 public class Pizza extends PizzaDBEntity{
 	final private int PID;
 	final private Customer customer;
@@ -46,6 +47,7 @@ public class Pizza extends PizzaDBEntity{
 		Option sauce = null;
 		ArrayList<Option> toppings = new ArrayList<>();
 		for(Option option : usedOptions){
+			// Requirement 5 switch statement
 			switch(option.getOptionType()){
 				case "C" -> {
 					if(crust != null){

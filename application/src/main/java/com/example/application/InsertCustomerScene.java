@@ -1,6 +1,7 @@
 package com.example.application;
 
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -8,10 +9,10 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 
 public class InsertCustomerScene{
-	//TODO add reload button
-
 	final private static TextField customerNameTextField = new TextField();
 	final private static TextField customerAddressTextField = new TextField();
 	final private static TextField customerPhoneNumberTextField = new TextField();
@@ -19,6 +20,8 @@ public class InsertCustomerScene{
 	
 	public static Scene createInsertCustomerScene(){
 		Label title = new Label("Add new Customer");
+		title.setTextAlignment(TextAlignment.CENTER);
+		title.setFont(new Font(24));
 		Label customerNameLabel = new Label("Enter Your Name: ");
 		Label customerAddressLabel = new Label("Enter Your Address: ");
 		Label customerPhoneNumberLabel = new Label("Enter Your Phone Number: ");
@@ -37,10 +40,12 @@ public class InsertCustomerScene{
 		subroot.setHgap(10.0);
 		subroot.setVgap(10.0);
 		subroot.setPadding(new Insets(10));
+		subroot.setAlignment(Pos.CENTER);
 		
 		MenuBar menuBar = DuesPizzaApplication.createMenuBar();
 		VBox root = new VBox(menuBar, title, subroot);
-		return new Scene(root);
+		root.setAlignment(Pos.TOP_CENTER);
+		return new Scene(root, DuesPizzaApplication.SCENEWIDTH, DuesPizzaApplication.SCENEHEIGHT);
 	}
 	
 	private static void handleButton(){

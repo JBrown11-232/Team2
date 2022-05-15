@@ -7,10 +7,6 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Random;
 
-//TODO validate pizzas having exactly 1 crust and sauce before updates
-//TODO have some way to deal with invalid pizzas (EX ones that have their crust deleted on them from the AvailableOptions table)
-//TODO test methods with non-existent or invalid pizzas
-
 public class PizzaDBManager{
 	final static private String DB_URL = "jdbc:derby:PizzaDB;create=true";
 	final static private int ID_LOWER_BOUND = 1;
@@ -174,6 +170,7 @@ public class PizzaDBManager{
 	}
 	
 	private static Connection createConn() throws SQLException{
+		// Requirement 1 use database + 9 use external files
 		return DriverManager.getConnection(DB_URL);
 	}
 	
@@ -194,6 +191,7 @@ public class PizzaDBManager{
 		
 		ResultSet results = stmt.executeQuery("SELECT Name FROM Customer");
 		ArrayList<String> listData = new ArrayList<>();
+		// Requirement 6 loops
 		while(results.next()){
 			listData.add(results.getString(1));
 		}
@@ -358,6 +356,7 @@ public class PizzaDBManager{
 		
 		ResultSet results = stmt.executeQuery("SELECT * FROM Pizza LEFT JOIN Customer ON "+
 				"Pizza.CustomerID=Customer.CustomerID WHERE PizzaID="+PID);
+		// Requirement 4 if-statement
 		if(!results.next()){
 			return null;
 		}

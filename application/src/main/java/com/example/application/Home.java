@@ -1,3 +1,5 @@
+//Written by Josh Brown
+
 package com.example.application;
 
 import javafx.geometry.Pos;
@@ -10,7 +12,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
-public class HomeScene{
+public class Home{
 	public static Scene createHomeScene(){
 		Image logo = new Image("file:application/src/main/resources/com/example/application/logo.png");
 		ImageView logoView = new ImageView(logo);
@@ -24,6 +26,6 @@ public class HomeScene{
 		
 		MenuBar menuBar = DuesPizzaApplication.createMenuBar();
 		VBox root = new VBox(menuBar, subroot);
-		return new Scene(root);
+		return new Scene(root, DuesPizzaApplication.SCENEWIDTH, DuesPizzaApplication.SCENEHEIGHT);
 	}
 }

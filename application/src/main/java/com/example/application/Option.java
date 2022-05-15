@@ -2,6 +2,7 @@
 
 package com.example.application;
 
+// Requirement 7 inheritance
 public class Option extends PizzaDBEntity{
 	final private int OID;
 	final private String name;
