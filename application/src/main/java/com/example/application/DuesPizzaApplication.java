@@ -11,8 +11,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.sql.SQLException;
-
 public class DuesPizzaApplication extends Application{
 	//Make attributes for scenes, stage, scene dims
 	public static Scene IPS;
@@ -31,7 +29,7 @@ public class DuesPizzaApplication extends Application{
 		launch(args);
 	}
 	
-	public void start(Stage primaryStage) throws SQLException{
+	public void start(Stage primaryStage){
 		//Set stage attribute and scene attributes
 		DuesPizzaApplication.primaryStage = primaryStage;
 		
@@ -72,10 +70,16 @@ public class DuesPizzaApplication extends Application{
 		//Set event handlers
 		homeItem.setOnAction(event -> primaryStage.setScene(HomeScene));
 		helpItem.setOnAction(event -> primaryStage.setScene(HelpScene));
-		IP.setOnAction(event -> primaryStage.setScene(IPS));
+		IP.setOnAction(event -> {
+			primaryStage.setScene(IPS);
+			InsertPizzaScene.reloadData();
+		});
 		IC.setOnAction(event -> primaryStage.setScene(ICS));
 		UO.setOnAction(event -> primaryStage.setScene(UOS));
-		TO.setOnAction(event -> primaryStage.setScene(TOS));
+		TO.setOnAction(event -> {
+			primaryStage.setScene(TOS);
+			FinalCost.reloadData();
+		});
 		return menuBar;
 	}
 	

@@ -110,8 +110,10 @@ public class InsertPizzaScene{
 				throw new RuntimeException("Customer of ID %d could not be found!".formatted(CID));
 			}
 			//Submitting the order
-			PizzaDBManager.submitOrder(customer,
-					new ArrayList<>(pizzaToppingsListView.getSelectionModel().getSelectedItems().stream().toList()), pizzaSize);
+			ArrayList<Option> optionsArrayList = new ArrayList<>(pizzaToppingsListView.getSelectionModel().getSelectedItems().stream().toList());
+			optionsArrayList.add(pizzaCrustComboBox.getValue());
+			optionsArrayList.add(pizzaSauceComboBox.getValue());
+			PizzaDBManager.submitOrder(customer, optionsArrayList, pizzaSize);
 			outputLabel.setText("Submitted Pizza!");
 		}
 		catch(Exception ex){
@@ -121,6 +123,9 @@ public class InsertPizzaScene{
 	
 	public static void reloadData(){
 		try{
+			smallPizza.setSelected(false);
+			mediumPizza.setSelected(false);
+			largePizza.setSelected(false);
 			pizzaCrustComboBox.getItems().setAll(FXCollections.observableArrayList(PizzaDBManager.getAvailableCrusts()));
 			pizzaSauceComboBox.getItems().setAll(FXCollections.observableArrayList(PizzaDBManager.getAvailableSauces()));
 			pizzaToppingsListView.getItems().setAll(FXCollections.observableArrayList(PizzaDBManager.getAvailableToppings()));
@@ -128,6 +133,10 @@ public class InsertPizzaScene{
 		catch(SQLException ex){
 			System.out.println("ERROR: " + ex.getMessage());
 		}
+	}
+	
+	public static void preloadCIDField(int CID){
+		CIDField.setText(""+CID);
 	}
 }
 
