@@ -1,15 +1,3 @@
-/*
-	Created By Ian Durant for Team 2
- */
-
-//Some things still need to do/ most likely still need to do
-//Set up the scenes correctly, so that they have their own scenes
-//Add it to the database?
-//Add comments
-//Making sure it works with the other parts of the program correctly
-//Changing of test names
-//Visual improvements
-
 //TODO relink creation methods
 
 package com.example.application;
