@@ -1,5 +1,11 @@
+/*
+	Created by Ian Durant for Team 2
+	Refactored by John Brown
+*/
+
 package com.example.application;
 
+//Import Statements
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -12,19 +18,24 @@ import javafx.scene.layout.VBox;
 public class InsertCustomerScene{
 	//TODO add reload button
 
+	//Creating varaibles
 	final private static TextField customerNameTextField = new TextField();
 	final private static TextField customerAddressTextField = new TextField();
 	final private static TextField customerPhoneNumberTextField = new TextField();
 	final private static Label outputLabel = new Label();
 	
 	public static Scene createInsertCustomerScene(){
+		//Crating Labels
 		Label title = new Label("Add new Customer");
 		Label customerNameLabel = new Label("Enter Your Name: ");
 		Label customerAddressLabel = new Label("Enter Your Address: ");
 		Label customerPhoneNumberLabel = new Label("Enter Your Phone Number: ");
+
+		//Button that creates customer id
 		Button createCustomerButton = new Button("Add Customer!");
 		createCustomerButton.setOnAction(actionEvent -> handleButton());
-		
+
+		//Creating GUI
 		GridPane subroot = new GridPane();
 		subroot.add(customerNameLabel, 0, 0);
 		subroot.add(customerAddressLabel, 0, 1);
@@ -37,13 +48,17 @@ public class InsertCustomerScene{
 		subroot.setHgap(10.0);
 		subroot.setVgap(10.0);
 		subroot.setPadding(new Insets(10));
-		
+
+		//Adding to menu bar
 		MenuBar menuBar = DuesPizzaApplication.createMenuBar();
 		VBox root = new VBox(menuBar, title, subroot);
 		return new Scene(root);
 	}
 	
 	private static void handleButton(){
+
+		//REQUIREMENT 2: String input
+		//Creating and displaying customer ID
 		try{
 			int CID = PizzaDBManager.insertCustomer(customerNameTextField.getText(),
 					customerAddressTextField.getText(), customerPhoneNumberTextField.getText());
