@@ -49,7 +49,7 @@ public class InsertPizzaScene{
 		Label title = new Label("Build Your Own Pizza");
 		title.setTextAlignment(TextAlignment.CENTER);
 		title.setFont(new Font(24));
-		Label customerIDLabel = new Label("Customer: ");
+		Label customerIDLabel = new Label("Customer ID: ");
 		Label pizzaSizeLabel = new Label("Size: ");
 		Label pizzaCrustLabel = new Label("Crust: ");
 		Label pizzaSauceLabel = new Label("Sauce: ");
@@ -62,11 +62,14 @@ public class InsertPizzaScene{
 		pizzaToppingsListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		
 		//Creating GUI
+		HBox sizeButtons = new HBox(smallPizza, mediumPizza, largePizza);
+		sizeButtons.setSpacing(10.0);
+		
 		GridPane v1 = new GridPane();
 		v1.add(customerIDLabel, 0, 0);
 		v1.add(CIDField, 1, 0);
 		v1.add(pizzaSizeLabel, 0, 1);
-		v1.add(new HBox(smallPizza, mediumPizza, largePizza), 1, 1);
+		v1.add(sizeButtons, 1, 1);
 		v1.add(pizzaCrustLabel, 0, 2);
 		v1.add(pizzaCrustComboBox, 1, 2);
 		v1.add(pizzaSauceLabel, 0, 3);
@@ -129,6 +132,8 @@ public class InsertPizzaScene{
 			pizzaCrustComboBox.getItems().setAll(FXCollections.observableArrayList(PizzaDBManager.getAvailableCrusts()));
 			pizzaSauceComboBox.getItems().setAll(FXCollections.observableArrayList(PizzaDBManager.getAvailableSauces()));
 			pizzaToppingsListView.getItems().setAll(FXCollections.observableArrayList(PizzaDBManager.getAvailableToppings()));
+			pizzaCrustComboBox.setValue(null);
+			pizzaSauceComboBox.setValue(null);
 		}
 		catch(SQLException ex){
 			System.out.println("ERROR: " + ex.getMessage());
