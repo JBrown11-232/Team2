@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Random;
 
 public class PizzaDBManager{
+	//Define constants and instantiate worldNum
 	final static private String DB_URL = "jdbc:derby:PizzaDB;create=true";
 	final static private int ID_LOWER_BOUND = 1;
 	final static private int ID_UPPER_BOUND = 100000000;
@@ -18,6 +19,7 @@ public class PizzaDBManager{
 	}
 	
 	public static void createDB(){
+		//Drop tables and create it anew
 		try{
 			Connection conn = createConn();
 			System.out.println("Dropping...");
@@ -45,6 +47,7 @@ public class PizzaDBManager{
 	}
 	
 	private static void dropTables(Connection conn) throws SQLException{
+		//Drop tables from database (ignore when tables already DNE)
 		Statement stmt = conn.createStatement();
 		try{
 			stmt.executeUpdate("DROP TABLE UsedOption");
@@ -81,6 +84,7 @@ public class PizzaDBManager{
 		stmt.close();
 	}
 	
+	//Methods to create tables in the database
 	private static void createCustomerTable(Connection conn) throws SQLException{
 		Statement stmt = conn.createStatement();
 		stmt.executeUpdate("CREATE TABLE Customer (CustomerID INT NOT NULL PRIMARY KEY, "+
@@ -175,6 +179,7 @@ public class PizzaDBManager{
 	}
 	
 	private static void closeConn(Connection conn){
+		//Close the database connection
 		if(conn != null){
 			try{
 				conn.close();
@@ -186,6 +191,7 @@ public class PizzaDBManager{
 	}
 	
 	public static ArrayList<String> getCustomerNames() throws SQLException{
+		//Return the names of the customers in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -202,6 +208,7 @@ public class PizzaDBManager{
 	}
 	
 	public static ArrayList<Integer> getCustomerIDs() throws SQLException{
+		//Return the IDs of the customers in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -217,6 +224,7 @@ public class PizzaDBManager{
 	}
 	
 	public static ArrayList<Integer> getPizzaIDs() throws SQLException{
+		//Return the IDs of the pizzas in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -232,6 +240,7 @@ public class PizzaDBManager{
 	}
 	
 	public static ArrayList<Integer> getAvailableOptionIDs() throws SQLException{
+		//Return the IDs of the available options in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -247,6 +256,7 @@ public class PizzaDBManager{
 	}
 	
 	public static String getCustomerName(int CID) throws SQLException{
+		//Return the name of the specified customer in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -259,6 +269,7 @@ public class PizzaDBManager{
 	}
 	
 	public static double getAvailableOptionPrice(int OID) throws SQLException{
+		//Return the price of the specified available option in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -271,6 +282,7 @@ public class PizzaDBManager{
 	}
 	
 	public static String getAvailableOptionName(int OID) throws SQLException{
+		//Return the name of the specified available option in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -283,6 +295,7 @@ public class PizzaDBManager{
 	}
 	
 	public static double getPizzaPrice(int PID) throws SQLException{
+		//Return the price of the specified pizza in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -295,6 +308,7 @@ public class PizzaDBManager{
 	}
 	
 	public static Customer getPizzaCustomer(int PID) throws SQLException{
+		//Return the customer of the specified pizza in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -309,6 +323,7 @@ public class PizzaDBManager{
 	}
 	
 	public static ArrayList<Pizza> getCustomerPizzas(int CID) throws SQLException{
+		//Return the pizzas of the specified customer in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		Statement stmt2 = conn.createStatement();
@@ -350,6 +365,7 @@ public class PizzaDBManager{
 	}
 	
 	public static Pizza getPizza(int PID) throws SQLException{
+		//Return the specified pizza in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		Statement stmt2 = conn.createStatement();
@@ -391,6 +407,7 @@ public class PizzaDBManager{
 	}
 	
 	public static ArrayList<Customer> getCustomers() throws SQLException{
+		//Return all customers in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -407,6 +424,7 @@ public class PizzaDBManager{
 	}
 	
 	public static Customer getCustomer(int CID) throws SQLException{
+		//Return the specified customer in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -424,6 +442,7 @@ public class PizzaDBManager{
 	}
 	
 	public static Option getAvailableOption(int OID) throws SQLException{
+		//Return the specified available option in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -441,6 +460,7 @@ public class PizzaDBManager{
 	}
 	
 	public static double getTotalOwed(int CID) throws SQLException{
+		//Return the total owed of the specified customer in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -458,6 +478,7 @@ public class PizzaDBManager{
 	}
 	
 	public static ArrayList<Option> getAvailableOptions() throws SQLException{
+		//Return all available options in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -474,6 +495,7 @@ public class PizzaDBManager{
 	}
 	
 	public static ArrayList<Option> getAvailableCrusts() throws SQLException{
+		//Return all available crusts in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -490,6 +512,7 @@ public class PizzaDBManager{
 	}
 	
 	public static ArrayList<Option> getAvailableSauces() throws SQLException{
+		//Return all available sauces in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -506,6 +529,7 @@ public class PizzaDBManager{
 	}
 	
 	public static ArrayList<Option> getAvailableToppings() throws SQLException{
+		//Return all available toppings in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -522,6 +546,7 @@ public class PizzaDBManager{
 	}
 	
 	public static ArrayList<Option> getUsedOptions(int PID) throws SQLException{
+		//Return all used options of the specified pizza in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -540,6 +565,7 @@ public class PizzaDBManager{
 	}
 	
 	public static Option getPizzaCrust(int PID) throws SQLException{
+		//Return the crust of the specified pizza in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -558,6 +584,7 @@ public class PizzaDBManager{
 	}
 	
 	public static Option getPizzaSauce(int PID) throws SQLException{
+		//Return the sauce of the specified pizza in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -576,6 +603,7 @@ public class PizzaDBManager{
 	}
 	
 	public static ArrayList<Option> getPizzaToppings(int PID) throws SQLException{
+		//Return all toppings of the specified pizza in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -594,6 +622,7 @@ public class PizzaDBManager{
 	}
 	
 	public static String getPizzaSize(int PID) throws SQLException{
+		//Return the size of the specified pizza in the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -616,6 +645,7 @@ public class PizzaDBManager{
 	}
 	
 	public static int getUniquePID() throws SQLException{
+		//Return an unused PID
 		ArrayList<Integer> usedPIDs;
 		usedPIDs = getPizzaIDs();
 		int val;
@@ -626,6 +656,7 @@ public class PizzaDBManager{
 	}
 	
 	public static int getUniqueOID() throws SQLException{
+		//Return an unused OID
 		ArrayList<Integer> usedOIDs;
 		usedOIDs = getAvailableOptionIDs();
 		int val;
@@ -636,6 +667,7 @@ public class PizzaDBManager{
 	}
 	
 	public static int getUniqueCID() throws SQLException{
+		//Return an unused CID
 		ArrayList<Integer> usedCIDs;
 		usedCIDs = getCustomerIDs();
 		int val;
@@ -646,11 +678,13 @@ public class PizzaDBManager{
 	}
 	
 	public static int submitOrder(Customer customer, ArrayList<Option> options, String size) throws SQLException{
+		//Submit a pizza order to the database
 		double price = options.stream().mapToDouble(Option::getPrice).sum() + Pizza.getSizePrice(size);
 		return submitOrder(customer.getCID(), new ArrayList<>(options.stream().map(Option::getOID).toList()), size, price);
 	}
 	
 	public static int submitOrder(int CID, ArrayList<Integer> OIDs, String size, double price) throws SQLException{
+		//Submit a pizza order to the database
 		int PID = insertPizza(CID, size, price);
 		for(int OID : OIDs){
 			insertUsedOption(OID, PID);
@@ -659,12 +693,14 @@ public class PizzaDBManager{
 	}
 	
 	public static int insertCustomer(String name, String address, String phoneNumber) throws SQLException{
+		//Insert a customer into the database
 		int CID = getUniqueCID();
 		insertCustomer(CID, name, address, phoneNumber);
 		return CID;
 	}
 	
 	public static void insertCustomer(int CID, String name, String address, String phoneNumber) throws SQLException{
+		//Insert a customer into the database
 		Connection conn = createConn();
 		PreparedStatement stmt = conn.prepareStatement("INSERT INTO Customer VALUES (?, ?, ?, ?)");
 		
@@ -687,12 +723,14 @@ public class PizzaDBManager{
 	}
 	
 	public static int insertAvailableOption(String name, String type, double price) throws SQLException{
+		//Insert an available option into the database
 		int OID = getUniqueOID();
 		insertAvailableOption(OID, name, type, price);
 		return OID;
 	}
 	
 	public static void insertAvailableOption(int OID, String name, String type, double price) throws SQLException{
+		//Insert an available option into the database
 		Connection conn = createConn();
 		PreparedStatement stmt = conn.prepareStatement("INSERT INTO AvailableOption VALUES (?, ?, ?, ?)");
 		
@@ -722,6 +760,7 @@ public class PizzaDBManager{
 	}
 	
 	public static void insertUsedOption(int OID, int PID) throws SQLException{
+		//Insert a used option into the database
 		Connection conn = createConn();
 		PreparedStatement stmt = conn.prepareStatement("INSERT INTO UsedOption VALUES (?, ?)");
 		
@@ -737,12 +776,14 @@ public class PizzaDBManager{
 	}
 	
 	public static int insertPizza(int CID, String size, double price) throws SQLException{
+		//Insert a pizza into the database
 		int PID = getUniquePID();
 		insertPizza(PID, CID, size, price);
 		return PID;
 	}
 	
 	public static void insertPizza(int PID, int CID, String size, double price) throws SQLException{
+		//Insert a pizza into the database
 		Connection conn = createConn();
 		PreparedStatement stmt = conn.prepareStatement("INSERT INTO Pizza VALUES (?, ?, ?, ?)");
 		
@@ -770,30 +811,37 @@ public class PizzaDBManager{
 	}
 	
 	public static void updateCustomerName(int CID, String name) throws SQLException{
+		//Update a customer in the database
 		updateCustomerName(getCustomer(CID), name);
 	}
 	
 	public static void updateCustomerName(Customer customer, String name) throws SQLException{
+		//Update a customer in the database
 		updateCustomer(customer.getCID(), name, customer.getAddress(), customer.getPhoneNumber());
 	}
 	
 	public static void updateCustomerAddress(int CID, String address) throws SQLException{
+		//Update a customer in the database
 		updateCustomerAddress(getCustomer(CID), address);
 	}
 	
 	public static void updateCustomerAddress(Customer customer, String address) throws SQLException{
+		//Update a customer in the database
 		updateCustomer(customer.getCID(), customer.getName(), address, customer.getPhoneNumber());
 	}
 	
 	public static void updateCustomerPhoneNumber(int CID, String phoneNumber) throws SQLException{
+		//Update a customer in the database
 		updateCustomerPhoneNumber(getCustomer(CID), phoneNumber);
 	}
 	
 	public static void updateCustomerPhoneNumber(Customer customer, String phoneNumber) throws SQLException{
+		//Update a customer in the database
 		updateCustomer(customer.getCID(), customer.getName(), customer.getAddress(), phoneNumber);
 	}
 	
 	public static void updateCustomer(int CID, String name, String address, String phoneNumber) throws SQLException{
+		//Update a customer in the database
 		Connection conn = createConn();
 		PreparedStatement stmt = conn.prepareStatement("UPDATE Customer SET Name=?, Address=?, PhoneNumber=? WHERE CustomerID=?");
 		
@@ -813,30 +861,37 @@ public class PizzaDBManager{
 	}
 	
 	public static void updateAvailableOptionName(int OID, String name) throws SQLException{
+		//Update an available option in the database
 		updateAvailableOptionName(getAvailableOption(OID), name);
 	}
 	
 	public static void updateAvailableOptionName(Option option, String name) throws SQLException{
+		//Update an available option in the database
 		updateAvailableOption(option.getOID(), name, option.getOptionType(), option.getPrice());
 	}
 	
 	public static void updateAvailableOptionType(int OID, String type) throws SQLException{
+		//Update an available option in the database
 		updateAvailableOptionType(getAvailableOption(OID), type);
 	}
 	
 	public static void updateAvailableOptionType(Option option, String type) throws SQLException{
+		//Update an available option in the database
 		updateAvailableOption(option.getOID(), option.getName(), type, option.getPrice());
 	}
 	
 	public static void updateAvailableOptionPrice(int OID, double price) throws SQLException{
+		//Update an available option in the database
 		updateAvailableOptionPrice(getAvailableOption(OID), price);
 	}
 	
 	public static void updateAvailableOptionPrice(Option option, double price) throws SQLException{
+		//Update an available option in the database
 		updateAvailableOption(option.getOID(), option.getName(), option.getOptionType(), price);
 	}
 	
 	public static void updateAvailableOption(int OID, String name, String type, double price) throws SQLException{
+		//Update an available option in the database
 		Connection conn = createConn();
 		PreparedStatement stmt = conn.prepareStatement("UPDATE AvailableOption SET Name=?, Type=?, Price=? WHERE OptionID=?");
 		
@@ -863,30 +918,37 @@ public class PizzaDBManager{
 	}
 	
 	public static void updatePizzaCustomerID(int PID, int CID) throws SQLException{
+		//Update a pizza in the database
 		updatePizzaCustomerID(getPizza(PID), CID);
 	}
 	
 	public static void updatePizzaCustomerID(Pizza pizza, int CID) throws SQLException{
+		//Update a pizza in the database
 		updatePizza(pizza.getPID(), CID, pizza.getSize(), pizza.getPrice());
 	}
 	
 	public static void updatePizzaSize(int PID, String size) throws SQLException{
+		//Update a pizza in the database
 		updatePizzaSize(getPizza(PID), size);
 	}
 	
 	public static void updatePizzaSize(Pizza pizza, String size) throws SQLException{
+		//Update a pizza in the database
 		updatePizza(pizza.getPID(), pizza.getCID(), size, pizza.getPrice());
 	}
 	
 	public static void updatePizzaPrice(int PID, double price) throws SQLException{
+		//Update a pizza in the database
 		updatePizzaPrice(getPizza(PID), price);
 	}
 	
 	public static void updatePizzaPrice(Pizza pizza, double price) throws SQLException{
+		//Update a pizza in the database
 		updatePizza(pizza.getPID(), pizza.getCID(), pizza.getSize(), price);
 	}
 	
 	public static void updatePizza(int PID, int CID, String size, double price) throws SQLException{
+		//Update a pizza in the database
 		Connection conn = createConn();
 		PreparedStatement stmt = conn.prepareStatement("UPDATE Pizza SET CustomerID=?, Size=?, Price=? WHERE PizzaID=?");
 		
@@ -910,6 +972,7 @@ public class PizzaDBManager{
 	}
 	
 	public static void recalculatePizzaPrice(int PID) throws SQLException{
+		//Recalculate the pizza's price in the database
 		Pizza pizza = getPizza(PID);
 		ArrayList<Option> toppings = pizza.getToppings();
 		double price = toppings.stream().mapToDouble(Option::getPrice).sum() + pizza.getCrust().getPrice() +
@@ -919,10 +982,12 @@ public class PizzaDBManager{
 	}
 	
 	public static void removeCustomer(Customer customer) throws SQLException{
+		//Remove a customer from the database
 		removeCustomer(customer.getCID());
 	}
 	
 	public static void removeCustomer(int CID) throws SQLException{
+		//Remove a customer from the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -940,10 +1005,12 @@ public class PizzaDBManager{
 	}
 	
 	public static void removeAvailableOption(Option option) throws SQLException{
+		//Remove an available option from the database
 		removeAvailableOption(option.getOID());
 	}
 	
 	public static void removeAvailableOption(int OID) throws SQLException{
+		//Remove an available option from the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -957,10 +1024,12 @@ public class PizzaDBManager{
 	}
 	
 	public static void removeUsedOption(Option option, Pizza pizza) throws SQLException{
+		//Remove a used option from the database
 		removeUsedOption(option.getOID(), pizza.getPID());
 	}
 	
 	public static void removeUsedOption(int OID, int PID) throws SQLException{
+		//Remove a used option from the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		
@@ -972,10 +1041,12 @@ public class PizzaDBManager{
 	}
 	
 	public static void removePizza(Pizza pizza) throws SQLException{
+		//Remove a pizza from the database
 		removePizza(pizza.getPID());
 	}
 	
 	public static void removePizza(int PID) throws SQLException{
+		//Remove a pizza from the database
 		Connection conn = createConn();
 		Statement stmt = conn.createStatement();
 		

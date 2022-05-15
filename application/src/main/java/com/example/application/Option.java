@@ -10,6 +10,7 @@ public class Option extends PizzaDBEntity{
 	final private double price;
 	
 	public Option(int OID, String name, String type, double price, int worldNum){
+		//Constructor to set all attributes
 		super(worldNum);
 		this.OID = OID;
 		this.name = name;
@@ -17,22 +18,21 @@ public class Option extends PizzaDBEntity{
 		this.price = price;
 	}
 	
+	//Getters
 	public int getOID(){
 		return OID;
 	}
-	
 	public String getName(){
 		return name;
 	}
-	
 	public double getPrice(){
 		return price;
 	}
-	
 	public String getOptionType(){
 		return type;
 	}
 	
+	//Convenience methods
 	public String getOptionTypeName(){
 		return switch(type){
 			case "C" -> "Crust";

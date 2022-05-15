@@ -34,6 +34,7 @@ public class Help{
 
         MenuBar menuBar = DuesPizzaApplication.createMenuBar();
         VBox root = new VBox(menuBar, purposeInstructionsVBox);
+        root.setAlignment(Pos.TOP_CENTER);
         return new Scene(root, DuesPizzaApplication.SCENEWIDTH, DuesPizzaApplication.SCENEHEIGHT);
     }
 
@@ -60,7 +61,7 @@ public class Help{
                 * To create your pizza click Create New... and then Create Pizza, enter your customer number in the space provided, and select what you want on your pizza
                 * You can select multiple toppings by ctrl-clicking the options.
                 * When finished customizing your pizza, press the button labeled Build Pizza.
-                * To review your order and check the cost select Review... and then select Review Order
+                * To review your order and check the cost select Review Order... and then select Total Cost
                 Thank you for choosing Due's Pizzeria""");
     }
 }
