@@ -62,8 +62,7 @@ public class InsertPizzaScene{
 		Label pizzaCrustLabel = new Label("Crust: ");
 		Label pizzaSauceLabel = new Label("Sauce: ");
 		Label pizzaToppingsLabel = new Label("Toppings: ");
-		
-		//Creating and limiting the list view for toppings
+
 		
 		StringConverter<Option> converter = new StringConverter<>() {
 			@Override
@@ -144,12 +143,14 @@ public class InsertPizzaScene{
 			optionsArrayList.add(pizzaSauceComboBox.getValue());
 			PizzaDBManager.submitOrder(customer, optionsArrayList, pizzaSize);
 			outputLabel.setText("Submitted Pizza!");
+			reloadData();
 		}
 		catch(Exception ex){
 			outputLabel.setText("Failed to order pizza!\n"+ex.getMessage());
 		}
 	}
-	
+
+	//Reloading the data
 	public static void reloadData(){
 		try{
 			smallPizza.setSelected(false);
@@ -166,11 +167,13 @@ public class InsertPizzaScene{
 			System.out.println("ERROR: " + ex.getMessage());
 		}
 	}
-	
+
+	//Preloading the id, so that the user does not have to enter it themselves
 	public static void preloadCIDField(int CID){
 		CIDField.setText(""+CID);
 	}
-	
+
+	//Checking the status of inputs
 	private static void setDisabledInsertStatus(){
 		boolean sizeSelected = smallPizza.isSelected() || mediumPizza.isSelected() || largePizza.isSelected();
 		boolean status = CIDField.getText().equals("") || !sizeSelected || pizzaCrustComboBox.getValue()==null ||

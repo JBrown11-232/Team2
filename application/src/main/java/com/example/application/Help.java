@@ -14,6 +14,7 @@ import javafx.scene.text.Font;
 
 public class Help{
     public static Scene createHelpScene(){
+        //Creating labels
         Label title = new Label("Help: ");
         title.setFont(new Font(36));
         Label purposeHeader = new Label("Purpose: ");
@@ -22,16 +23,19 @@ public class Help{
         Label basicInstructionsHeader = new Label("Instructions: ");
         basicInstructionsHeader.setFont(new Font(24));
         Label explainInstructions = InstructionsPurpose();
-        
+
+        //Creating and putting variables into VBoxes
         VBox purposeVBox = new VBox(10,purposeHeader,explainPurpose);
         VBox instructionsVBox = new VBox(10,basicInstructionsHeader,explainInstructions);
         VBox titleVBox = new VBox(10,title);
         VBox purposeInstructionsVBox = new VBox(30,titleVBox,purposeVBox,instructionsVBox);
 
+        //Positioning the VBoxes
         titleVBox.setAlignment(Pos.TOP_CENTER);
         purposeVBox.setAlignment(Pos.CENTER);
         instructionsVBox.setAlignment(Pos.CENTER);
 
+        //Adding to menu
         MenuBar menuBar = DuesPizzaApplication.createMenuBar();
         VBox root = new VBox(menuBar, purposeInstructionsVBox);
         root.setAlignment(Pos.TOP_CENTER);
@@ -40,6 +44,7 @@ public class Help{
 
     public static Label ProgramsPurpose()
     {
+        //Label for programs purpose
         return new Label("""
                 This program is a build your own pizza application which will:
                 * Let the user choose the pizza's size, toppings, sauce, and the crust
@@ -53,6 +58,7 @@ public class Help{
 
     public static Label InstructionsPurpose()
     {
+        //Label for instructions purpose
         return new Label("""
                 You can navigate this application by clicking an item in the submenu
                 To create your a pizza:

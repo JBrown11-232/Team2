@@ -710,6 +710,18 @@ public class PizzaDBManager{
 		if(name.length()==0){
 			throw new RuntimeException("Customer name cannot be empty!");
 		}
+		if(name.length() > 50)
+		{
+			throw new RuntimeException("Customer's name is to long");
+		}
+		if(address.length() > 80)
+		{
+			throw new RuntimeException("Customer's address is to long");
+		}
+		if(phoneNumber.length() > 20)
+		{
+			throw new RuntimeException("Customer's phone number is to long");
+		}
 		
 		stmt.setInt(1, CID);
 		stmt.setString(2, name);
