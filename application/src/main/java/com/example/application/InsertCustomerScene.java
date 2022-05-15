@@ -55,10 +55,11 @@ public class InsertCustomerScene{
 		subroot.setVgap(10.0);
 		subroot.setPadding(new Insets(10));
 		subroot.setAlignment(Pos.CENTER);
-		
+
+		//Calling a method
 		setDisabledInsertStatus();
 		
-		//Adding a menu bar
+		//Adding to the menu bar
 		MenuBar menuBar = DuesPizzaApplication.createMenuBar();
 		VBox root = new VBox(menuBar, title, subroot);
 		root.setAlignment(Pos.TOP_CENTER);
@@ -78,8 +79,10 @@ public class InsertCustomerScene{
 			outputLabel.setText("Failed to add customer!\n"+ex.getMessage());
 		}
 	}
-	
+
+
 	private static void setDisabledInsertStatus(){
+		//Checking the status of inputs
 		boolean status = customerNameTextField.getText().equals("") ||
 				customerAddressTextField.getText().equals("") || customerPhoneNumberTextField.getText().equals("");
 		createCustomerButton.setDisable(status);

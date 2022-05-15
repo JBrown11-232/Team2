@@ -703,12 +703,24 @@ public class PizzaDBManager{
 		//Insert a customer into the database
 		Connection conn = createConn();
 		PreparedStatement stmt = conn.prepareStatement("INSERT INTO Customer VALUES (?, ?, ?, ?)");
-		
+		//Handling possible input errors
 		if(CID < ID_LOWER_BOUND || CID > ID_UPPER_BOUND){
 			throw new RuntimeException("CID outside of acceptable range!");
 		}
 		if(name.length()==0){
 			throw new RuntimeException("Customer name cannot be empty!");
+		}
+		if(name.length() > 50)
+		{
+			throw new RuntimeException("Customer's name is to long");
+		}
+		if(address.length() > 80)
+		{
+			throw new RuntimeException("Customer's address is to long");
+		}
+		if(phoneNumber.length() > 20)
+		{
+			throw new RuntimeException("Customer's phone number is to long");
 		}
 		
 		stmt.setInt(1, CID);
