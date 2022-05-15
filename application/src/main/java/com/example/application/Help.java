@@ -35,7 +35,7 @@ public class Help{
         purposeVBox.setAlignment(Pos.CENTER);
         instructionsVBox.setAlignment(Pos.CENTER);
 
-        //Adding to menu
+        //Adding to menu bar
         MenuBar menuBar = DuesPizzaApplication.createMenuBar();
         VBox root = new VBox(menuBar, purposeInstructionsVBox);
         root.setAlignment(Pos.TOP_CENTER);

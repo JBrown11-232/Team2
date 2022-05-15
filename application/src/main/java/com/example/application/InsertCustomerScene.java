@@ -59,7 +59,7 @@ public class InsertCustomerScene{
 		//Calling a method
 		setDisabledInsertStatus();
 		
-		//Adding a menu bar
+		//Adding to the menu bar
 		MenuBar menuBar = DuesPizzaApplication.createMenuBar();
 		VBox root = new VBox(menuBar, title, subroot);
 		root.setAlignment(Pos.TOP_CENTER);

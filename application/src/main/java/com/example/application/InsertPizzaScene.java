@@ -63,7 +63,7 @@ public class InsertPizzaScene{
 		Label pizzaSauceLabel = new Label("Sauce: ");
 		Label pizzaToppingsLabel = new Label("Toppings: ");
 
-		
+		//Overriding Object
 		StringConverter<Option> converter = new StringConverter<>() {
 			@Override
 			public String toString(Option object) {
@@ -106,10 +106,11 @@ public class InsertPizzaScene{
 		subroot.setSpacing(10.0);
 		subroot.setPadding(new Insets(10));
 		subroot.setAlignment(Pos.CENTER);
-		
+
+		//Calling method
 		setDisabledInsertStatus();
 		
-		//Adding menu bar
+		//Adding to the menu bar
 		MenuBar menuBar = DuesPizzaApplication.createMenuBar();
 		VBox root = new VBox(menuBar, title, subroot);
 		root.setAlignment(Pos.TOP_CENTER);

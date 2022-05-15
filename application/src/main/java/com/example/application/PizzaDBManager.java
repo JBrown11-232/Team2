@@ -703,7 +703,7 @@ public class PizzaDBManager{
 		//Insert a customer into the database
 		Connection conn = createConn();
 		PreparedStatement stmt = conn.prepareStatement("INSERT INTO Customer VALUES (?, ?, ?, ?)");
-		
+		//Handling possible input errors
 		if(CID < ID_LOWER_BOUND || CID > ID_UPPER_BOUND){
 			throw new RuntimeException("CID outside of acceptable range!");
 		}
