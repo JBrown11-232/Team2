@@ -68,6 +68,7 @@ public class InsertCustomerScene{
 			int CID = PizzaDBManager.insertCustomer(customerNameTextField.getText(),
 					customerAddressTextField.getText(), customerPhoneNumberTextField.getText());
 			outputLabel.setText("Added new customer! Your CID is %d.".formatted(CID));
+			InsertPizzaScene.preloadCIDField(CID);
 		}
 		catch(Exception ex){
 			outputLabel.setText("Failed to add customer!\n"+ex.getMessage());
