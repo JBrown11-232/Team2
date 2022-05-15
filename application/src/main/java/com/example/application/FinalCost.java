@@ -1,24 +1,22 @@
 //Written by Connor Levinson
 //The purpose of this code is to display the customers orders and total owed using java fx
+
 package com.example.application;
-import javafx.application.Application;
+
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.ListView;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.MenuBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 
-import java.sql.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
-
-public class FinalCost extends Application{
-    public static void main(String[] args)
-    {launch(args);}
-    @Override
-    public void start(Stage primaryStage) throws SQLException{
+public class FinalCost{
+    public static Scene createTotalOwed() throws SQLException{
         ArrayList<Integer> CID_List = PizzaDBManager.getCustomerIDs();
 
         Label customerLabel = new Label("Customers");
@@ -65,9 +63,9 @@ public class FinalCost extends Application{
 
         HBox hbox = new HBox(vbox1,vbox2);
 
-        Scene scene = new Scene(hbox);
-        primaryStage.setScene(scene);
-        primaryStage.show();
-
+        MenuBar menuBar = DuesPizzaApplication.createMenuBar();
+        VBox root = new VBox(menuBar, hbox);
+        root.setAlignment(Pos.TOP_CENTER);
+        return new Scene(root, DuesPizzaApplication.SCENEWIDTH, DuesPizzaApplication.SCENEHEIGHT);
     }
 }

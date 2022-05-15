@@ -2,6 +2,7 @@
 
 package com.example.application;
 
+// Requirement 7 inheritance
 public class Customer extends PizzaDBEntity{
 	final private int CID;
 	final private String name;
@@ -9,6 +10,7 @@ public class Customer extends PizzaDBEntity{
 	final private String phoneNumber;
 	
 	public Customer(int CID, String name, String address, String phoneNumber, int worldNum){
+		//Constructor to set all attributes
 		super(worldNum);
 		this.CID = CID;
 		this.name = name;
@@ -16,22 +18,21 @@ public class Customer extends PizzaDBEntity{
 		this.phoneNumber = phoneNumber;
 	}
 	
+	//Getters
 	public int getCID(){
 		return CID;
 	}
-	
 	public String getName(){
 		return name;
 	}
-	
 	public String getAddress(){
 		return address;
 	}
-	
 	public String getPhoneNumber(){
 		return phoneNumber;
 	}
 	
+	//Convenience methods
 	@Override
 	public boolean isPizza(){
 		return false;

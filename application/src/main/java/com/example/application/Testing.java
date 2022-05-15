@@ -14,8 +14,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-//TODO add if tests to first part of tests
-
 public class Testing extends Application{
 	public static void main(String[] args) throws SQLException{
 		System.out.println("Beginning Tests");

@@ -4,6 +4,7 @@ package com.example.application;
 
 import java.util.ArrayList;
 
+// Requirement 7 inheritance
 public class Pizza extends PizzaDBEntity{
 	final private int PID;
 	final private Customer customer;
@@ -12,12 +13,14 @@ public class Pizza extends PizzaDBEntity{
 	final private Option sauce;
 	final private ArrayList<Option> toppings;
 	final private double price;
+	//Define base prices of each size
 	final static private double SMALL_PRICE = 3.50;
 	final static private double MEDIUM_PRICE = 5.00;
 	final static private double LARGE_PRICE = 6.00;
 	
 	public Pizza(int PID, Customer customer, String size, Option crust, Option sauce,
 				 ArrayList<Option> toppings, double price, int worldNum){
+		//Constructors to set all attributes
 		super(worldNum);
 		if(customer == null){
 			throw new RuntimeException("Every pizza must have a customer!");
@@ -38,6 +41,7 @@ public class Pizza extends PizzaDBEntity{
 	}
 	
 	public Pizza(int PID, Customer customer, String size, ArrayList<Option> usedOptions, double price, int worldNum){
+		//Alternate constructor
 		super(worldNum);
 		this.PID = PID;
 		this.customer = customer;
@@ -46,6 +50,7 @@ public class Pizza extends PizzaDBEntity{
 		Option sauce = null;
 		ArrayList<Option> toppings = new ArrayList<>();
 		for(Option option : usedOptions){
+			// Requirement 5 switch statement
 			switch(option.getOptionType()){
 				case "C" -> {
 					if(crust != null){
@@ -71,34 +76,30 @@ public class Pizza extends PizzaDBEntity{
 		this.price = price;
 	}
 	
+	//Getters
 	public int getPID(){
 		return PID;
 	}
-	
 	public Customer getCustomer(){
 		return customer;
 	}
-	
 	public String getSize(){
 		return size;
 	}
-	
 	public Option getCrust(){
 		return crust;
 	}
-	
 	public Option getSauce(){
 		return sauce;
 	}
-	
 	public ArrayList<Option> getToppings(){
 		return new ArrayList<>(toppings);
 	}
-	
 	public double getPrice(){
 		return price;
 	}
 	
+	//Convenience methods
 	@Override
 	public boolean isPizza(){
 		return true;
