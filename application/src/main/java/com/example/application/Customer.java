@@ -4,10 +4,10 @@ package com.example.application;
 
 // Requirement 7 inheritance
 public class Customer extends PizzaDBEntity{
-	final private int CID;
-	final private String name;
-	final private String address;
-	final private String phoneNumber;
+	private int CID;
+	private String name;
+	private String address;
+	private String phoneNumber;
 	
 	public Customer(int CID, String name, String address, String phoneNumber, int worldNum){
 		//Constructor to set all attributes
@@ -65,5 +65,33 @@ public class Customer extends PizzaDBEntity{
 	@Override
 	public String toString(){
 		return "CID: %d; Name: %s; Address: %s; Phone Number: %s".formatted(CID, name, address, phoneNumber);
+	}
+
+	// this section written by Eric Hill
+	//setter/update methods for the customer attributes
+
+	public String updateCustomerCID(int newCID){
+		this.CID = newCID;
+		return "New Customer ID updated to " + this.CID;
+	}
+	public String updateCustomerName(String newName){
+		this.name = newName;
+		return "New Customer name updated to " + this.name;
+	}
+	public String updateCustomerAddress(String newAddress){
+		this.address = newAddress;
+		return "New Customer adddress updated to " + this.address;
+	}
+	public String updateCustomerPhoneNumber(String newPhoneNumber){
+		this.phoneNumber = newPhoneNumber;
+		return "New Customer phone number updated to " + this.phoneNumber;
+	}
+
+	public String updateCustomer(int newCID, String newName, String newAddress, String newPhoneNumber){
+		this.CID = newCID;
+		this.name = newName;
+		this.address = newAddress;
+		this.phoneNumber = newPhoneNumber;
+		return "New customer information updated to:  " + this.CID + ", " + this.name + ", " + this.address + ", " + this.phoneNumber;
 	}
 }

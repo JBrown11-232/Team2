@@ -4,11 +4,11 @@ package com.example.application;
 
 // Requirement 7 inheritance
 public class Option extends PizzaDBEntity{
-	final private int OID;
-	final private String name;
-	final private String type;
-	final private double price;
-	
+	private int OID;
+	private String name;
+	private String type;
+	private double price;
+
 	public Option(int OID, String name, String type, double price, int worldNum){
 		//Constructor to set all attributes
 		super(worldNum);
@@ -87,4 +87,35 @@ public class Option extends PizzaDBEntity{
 	public String toString(){
 		return "OID: %d; Name: %s; Type: %s; Price: $%.2f".formatted(OID, name, type, price);
 	}
+
+
+	// this section written by Eric Hill
+	//setter/update methods for the option attributes
+
+	public String updateOptionOID(int newOID){
+		this.OID = newOID;
+		return "New option ID updated to " + this.OID;
+	}
+	public String updateOptionName(String newName){
+		this.name = newName;
+		return "New option name updated to " + this.name;
+	}
+	public String updateOptionPrice(double newPrice){
+		this.price = newPrice;
+		return "New option price updated to $" + this.price;
+	}
+	public String updateOptionType(String newType){
+		this.type = newType;
+		return "New option type updated to " + this.type;
+	}
+
+	public String updateOption(int newOID, String newName, double newPrice, String newType){
+		this.OID = newOID;
+		this.name = newName;
+		this.price = newPrice;
+		this.type = newType;
+		return "New option updated to:  " + this.OID + ", " + this.name + ", " + this.price + ", " + this.type;
+	}
+
+
 }
