@@ -2,6 +2,10 @@
 
 package com.example.application;
 
+import java.sql.SQLException;
+
+import static com.example.application.PizzaDBManager.*;
+
 // Requirement 7 inheritance
 public class Customer extends PizzaDBEntity{
 	final private int CID;
@@ -65,5 +69,28 @@ public class Customer extends PizzaDBEntity{
 	@Override
 	public String toString(){
 		return "CID: %d; Name: %s; Address: %s; Phone Number: %s".formatted(CID, name, address, phoneNumber);
+	}
+
+	// this section written by Eric Hill
+	//setter/update methods for the customer attributes in the database
+
+	public String updateCustomername(String newName) throws SQLException {
+		updateCustomerName(this.getCID(), newName);
+		return "New Customer name updated to " + this.name;
+	}
+	public String updateCustomeraddress(String newAddress) throws SQLException {
+		updateCustomerAddress(this.getCID(), newAddress);
+		return "New Customer adddress updated to " + this.address;
+	}
+	public String updateCustomerPhonenumber(String newPhoneNumber) throws SQLException {
+		updateCustomerPhoneNumber(this.getCID(), newPhoneNumber);
+		return "New Customer phone number updated to " + this.phoneNumber;
+	}
+
+	public String updateCustomer(String newName, String newAddress, String newPhoneNumber) throws SQLException {
+		updateCustomerName(this.getCID(), newName);
+		updateCustomerAddress(this.getCID(), newAddress);
+		updateCustomerPhoneNumber(this.getCID(), newPhoneNumber);
+		return "New customer information updated to:  " + this.name + ", " + this.address + ", " + this.phoneNumber;
 	}
 }
