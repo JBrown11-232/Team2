@@ -2,12 +2,16 @@
 
 package com.example.application;
 
+import java.sql.SQLException;
+
+import static com.example.application.PizzaDBManager.*;
+
 // Requirement 7 inheritance
 public class Option extends PizzaDBEntity{
-	private int OID;
-	private String name;
-	private String type;
-	private double price;
+	final private int OID;
+	final private String name;
+	final private String type;
+	final private double price;
 
 	public Option(int OID, String name, String type, double price, int worldNum){
 		//Constructor to set all attributes
@@ -90,31 +94,27 @@ public class Option extends PizzaDBEntity{
 
 
 	// this section written by Eric Hill
-	//setter/update methods for the option attributes
+	//setter/update methods for the option attributes in the database
 
-	public String updateOptionOID(int newOID){
-		this.OID = newOID;
-		return "New option ID updated to " + this.OID;
-	}
-	public String updateOptionName(String newName){
-		this.name = newName;
+
+	public String updateOptionName(String newName) throws SQLException {
+		updateAvailableOptionName(this.getOID(), newName);
 		return "New option name updated to " + this.name;
 	}
-	public String updateOptionPrice(double newPrice){
-		this.price = newPrice;
+	public String updateOptionPrice(double newPrice) throws SQLException {
+		updateAvailableOptionPrice(this.getOID(), newPrice);
 		return "New option price updated to $" + this.price;
 	}
-	public String updateOptionType(String newType){
-		this.type = newType;
+	public String updateOptionType(String newType) throws SQLException {
+		updateAvailableOptionType(this.getOID(), newType);
 		return "New option type updated to " + this.type;
 	}
 
-	public String updateOption(int newOID, String newName, double newPrice, String newType){
-		this.OID = newOID;
-		this.name = newName;
-		this.price = newPrice;
-		this.type = newType;
-		return "New option updated to:  " + this.OID + ", " + this.name + ", " + this.price + ", " + this.type;
+	public String updateOption(String newName, double newPrice, String newType) throws SQLException {
+		updateAvailableOptionName(this.getOID(), newName);
+		updateAvailableOptionPrice(this.getOID(), newPrice);
+		updateAvailableOptionType(this.getOID(), newType);
+		return "New option updated to:  " + this.name + ", " + this.price + ", " + this.type;
 	}
 
 

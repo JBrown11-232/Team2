@@ -2,21 +2,24 @@
 
 package com.example.application;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+
+import static com.example.application.PizzaDBManager.*;
 
 // Requirement 7 inheritance
 public class Pizza extends PizzaDBEntity{
-	private int PID;
-	private Customer customer;
-	private String size;
-	private Option crust;
-	private Option sauce;
+	final private int PID;
+	final private Customer customer;
+	final private String size;
+	final private Option crust;
+	final private Option sauce;
 	final private ArrayList<Option> toppings;
-	private double price;
+	final private double price;
 	//Define base prices of each size
-	static private double SMALL_PRICE = 3.50;
-	static private double MEDIUM_PRICE = 5.00;
-	static private double LARGE_PRICE = 6.00;
+	final static private double SMALL_PRICE = 3.50;
+	final static private double MEDIUM_PRICE = 5.00;
+	final static private double LARGE_PRICE = 6.00;
 
 	
 	public Pizza(int PID, Customer customer, String size, Option crust, Option sauce,
@@ -173,52 +176,21 @@ public class Pizza extends PizzaDBEntity{
 	}
 
 	// this section written by Eric Hill
-	//setter/update methods for the pizza attributes
+	//setter/update methods for the pizza attributes in the database
 
-	public String updatePizzaPID(int newPID){
-		this.PID = newPID;
-		return "new pizza PID updated to " + this.PID;
-	}
-	public String updatePizzaCustomer(Customer newCustomer){
-		this.customer = newCustomer;
-		return "new pizza customer updated to " + this.customer;
-	}
-	public String updatePizzasize(String newSize){
-		this.size = newSize;
+	public String updatePizzasize(String newSize) throws SQLException {
+		updatePizzaSize(this.getPID(), newSize);
 		return "new pizza size updated to " + this.size;
 	}
-	public String updatePizzaCrust(Option newCrust){
-		this.crust = newCrust;
-		return "new pizza crust updated to " + this.crust;
-	}
-	public String updatePizzaSauce(Option newSauce){
-		this.sauce = newSauce;
-		return "new pizza sauce updated to " + this.sauce;
-	}
-	public String updatePizzaPrice(double newPrice){
-		this.price = newPrice;
+
+	public String updatePizzaprice(double newPrice) throws SQLException {
+		updatePizzaPrice(this.getPID(), newPrice);
 		return "new pizza price updated to " + this.price;
 	}
-	public String updatePizzaSmallPrice(double newPrice){
-		this.SMALL_PRICE = newPrice;
-		return "new pizza small price updated to " + this.SMALL_PRICE ;
-	}
-	public String updatePizzaMediumPrice(double newPrice){
-		this.MEDIUM_PRICE = newPrice;
-		return "new pizza medium price updated to " + this.MEDIUM_PRICE ;
-	}
-	public String updatePizzaLargelPrice(double newPrice){
-		this.LARGE_PRICE = newPrice;
-		return "new pizza large price updated to " + this.LARGE_PRICE ;
-	}
 
-	public String updatePizza(int newPID, Customer newCustomer, String newSize, Option newCrust, Option newSauce, double newPrice){
-		this.PID = newPID;
-		this.customer = newCustomer;
-		this.size = newSize;
-		this.crust = newCrust;
-		this.sauce = newSauce;
-		this.price = newPrice;
-		return "Pizza updated to: " + this.PID + ", " + this.customer + ", " + this.size + ", " + this.crust + ", " + this.sauce + ", " + this.price;
+	public String updatePizzaInfo(String newSize, double newPrice) throws SQLException {
+		updatePizzaSize(this.getPID(), newSize);
+		updatePizzaPrice(this.getPID(), newPrice);
+		return "Pizza updated to: " + this.size + ", " +  this.price;
 	}
 }
